@@ -1,7 +1,7 @@
 {
   "canisters": {
-    "neuron_pylon_backend": {
-      "main": "src/neuron_pylon_backend/main.mo",
+    "neuron_pylon": {
+      "main": "src/main.mo",
       "type": "motoko"
     }
   },
