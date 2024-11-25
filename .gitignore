@@ -10,9 +10,6 @@
 # dfx temporary files
 .dfx/
 
-# generated files
-**/declarations/
-
 # rust
 target/
 
@@ -21,5 +18,7 @@ node_modules/
 dist/
 .svelte-kit/
 
-# environment variables
+# other
 .env
+.mops
+/scripts

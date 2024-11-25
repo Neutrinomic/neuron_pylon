@@ -2,13 +2,21 @@
   "canisters": {
     "neuron_pylon": {
       "main": "src/main.mo",
-      "type": "motoko"
+      "type": "motoko",
+      "gzip": true,
+      "declarations": {
+        "node_compatibility": true,
+        "output": "src/declarations"
+      },
+      "post_install": [
+        "cp .dfx/ic/canisters/neuron_pylon/neuron_pylon.wasm.gz src/wasm"
+      ]
     }
   },
   "defaults": {
     "build": {
       "args": "",
-      "packtool": ""
+      "packtool": "mops sources"
     }
   },
   "output_env_file": ".env",
