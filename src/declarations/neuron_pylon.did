@@ -13,6 +13,7 @@ type _anon_class_14_1 =
    icrc55_account_register: (Account) -> ();
    icrc55_accounts: (AccountsRequest) -> (AccountsResponse) query;
    icrc55_command: (BatchCommandRequest) -> (BatchCommandResponse);
+   icrc55_command_validate: (BatchCommandRequest) -> (ValidationResult) query;
    icrc55_get_controller_nodes: (GetControllerNodesRequest) ->
     (vec NodeShared) query;
    icrc55_get_defaults: (text) -> (CreateRequest) query;
@@ -38,6 +39,11 @@ type Value =
    Map: vec ValueMap;
    Nat: nat;
    Text: text;
+ };
+type ValidationResult = 
+ variant {
+   Err: text;
+   Ok: text;
  };
 type UpdatingStatus = 
  variant {

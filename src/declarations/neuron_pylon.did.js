@@ -358,6 +358,7 @@ export const idlFactory = ({ IDL }) => {
       'invalid_signature' : IDL.Null,
     }),
   });
+  const ValidationResult = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text });
   const GetControllerNodesRequest = IDL.Record({
     'id' : Controller,
     'start' : LocalNodeId,
@@ -469,6 +470,11 @@ export const idlFactory = ({ IDL }) => {
         [BatchCommandRequest],
         [BatchCommandResponse],
         [],
+      ),
+    'icrc55_command_validate' : IDL.Func(
+        [BatchCommandRequest],
+        [ValidationResult],
+        ['query'],
       ),
     'icrc55_get_controller_nodes' : IDL.Func(
         [GetControllerNodesRequest],

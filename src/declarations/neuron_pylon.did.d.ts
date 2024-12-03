@@ -351,6 +351,8 @@ export type TransferResponse = { 'ok' : bigint } |
 export type UpdatingStatus = { 'Calling' : bigint } |
   { 'Done' : bigint } |
   { 'Init' : null };
+export type ValidationResult = { 'Ok' : string } |
+  { 'Err' : string };
 export type Value = { 'Int' : bigint } |
   { 'Map' : Array<ValueMap> } |
   { 'Nat' : bigint } |
@@ -375,6 +377,10 @@ export interface _anon_class_14_1 {
   'icrc55_account_register' : ActorMethod<[Account], undefined>,
   'icrc55_accounts' : ActorMethod<[AccountsRequest], AccountsResponse>,
   'icrc55_command' : ActorMethod<[BatchCommandRequest], BatchCommandResponse>,
+  'icrc55_command_validate' : ActorMethod<
+    [BatchCommandRequest],
+    ValidationResult
+  >,
   'icrc55_get_controller_nodes' : ActorMethod<
     [GetControllerNodesRequest],
     Array<NodeShared>

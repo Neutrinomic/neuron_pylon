@@ -122,6 +122,10 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
         );
     };
 
+    public query func icrc55_command_validate(req : ICRC55.BatchCommandRequest<T.CreateRequest, T.ModifyRequest>) : async ICRC55.ValidationResult {
+        #Ok(debug_show(req));
+    };
+    
     public query func icrc55_get_nodes(req : [ICRC55.GetNode]) : async [?MU_sys.NodeShared<T.Shared>] {
         sys.icrc55_get_nodes(req);
     };
