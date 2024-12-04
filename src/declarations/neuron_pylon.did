@@ -80,6 +80,10 @@ type TransferRequest =
               node_id: LocalNodeId;
             };
       node_billing: LocalNodeId;
+      temp: record {
+              id: nat32;
+              source_idx: EndpointIdx;
+            };
     };
  };
 type TransactionRange = 
@@ -437,6 +441,7 @@ type CommonCreateRequest =
    controllers: vec Controller;
    destinations: vec opt InputAddress;
    extractors: vec LocalNodeId;
+   initial_billing_amount: opt nat;
    ledgers: vec SupportedLedger;
    refund: Account;
    sources: vec opt InputAddress;
