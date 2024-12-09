@@ -76,7 +76,9 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
 
     // Vector modules
     stable let mem_vec_icpneuron_1 = VecIcpNeuron.Mem.Vector.V1.new();
-    let devefi_jes1_icpneuron = VecIcpNeuron.Mod({ xmem = mem_vec_icpneuron_1; core; });
+    stable let mem_vec_icpneuron_2 = VecIcpNeuron.Mem.Vector.V2.upgrade(mem_vec_icpneuron_1);
+    
+    let devefi_jes1_icpneuron = VecIcpNeuron.Mod({ xmem = mem_vec_icpneuron_2; core; });
 
     let vmod = T.VectorModules({ devefi_jes1_icpneuron });
 
