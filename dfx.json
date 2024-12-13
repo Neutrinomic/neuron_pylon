@@ -3,6 +3,11 @@
     "neuron_pylon": {
       "main": "src/main.mo",
       "type": "motoko",
+      "pullable": {
+        "dependencies": [],
+        "wasm_url": "https://github.com/jesssekeogh/neuron_pylon/raw/refs/heads/main/src/wasm/neuron_pylon.wasm.gz",
+        "init_guide": "dfx deps pull"
+      },
       "gzip": true,
       "declarations": {
         "node_compatibility": true,
