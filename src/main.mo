@@ -95,12 +95,12 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     private func async_proc() : async* () { await* devefi_jes1_icpneuron.runAsync() };
 
     ignore Timer.recurringTimer<system>(
-        #seconds 2,
+        #seconds 30,
         func() : async () { core.heartbeat(proc) },
     );
 
     ignore Timer.recurringTimer<system>(
-        #seconds 2,
+        #seconds 30,
         func() : async () { await* async_proc() },
     );
 
