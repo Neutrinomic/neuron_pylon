@@ -161,8 +161,28 @@ export const idlFactory = ({ IDL }) => {
     'dissolve_status' : IDL.Opt(DissolveStatus),
     'followee' : IDL.Opt(Followee),
   });
+  const SnsDissolveDelay = IDL.Variant({
+    'Default' : IDL.Null,
+    'DelayDays' : IDL.Nat64,
+  });
+  const SnsDissolveStatus = IDL.Variant({
+    'Locked' : IDL.Null,
+    'Dissolving' : IDL.Null,
+  });
+  const SnsFollowee = IDL.Variant({
+    'FolloweeId' : IDL.Vec(IDL.Nat8),
+    'Unspecified' : IDL.Null,
+  });
+  const ModifyRequest__2 = IDL.Record({
+    'dissolve_delay' : IDL.Opt(SnsDissolveDelay),
+    'dissolve_status' : IDL.Opt(SnsDissolveStatus),
+    'followee' : IDL.Opt(SnsFollowee),
+  });
+  const ModifyRequest__3 = IDL.Record({ 'split' : IDL.Vec(IDL.Nat) });
   const ModifyRequest = IDL.Variant({
     'devefi_jes1_icpneuron' : ModifyRequest__1,
+    'devefi_jes1_snsneuron' : ModifyRequest__2,
+    'devefi_split' : ModifyRequest__3,
   });
   const ModifyNodeRequest = IDL.Tuple(
     LocalNodeId,
@@ -196,8 +216,20 @@ export const idlFactory = ({ IDL }) => {
       'followee' : Followee,
     }),
   });
+  const CreateRequest__2 = IDL.Record({
+    'variables' : IDL.Record({
+      'dissolve_delay' : SnsDissolveDelay,
+      'dissolve_status' : SnsDissolveStatus,
+      'followee' : SnsFollowee,
+    }),
+  });
+  const CreateRequest__3 = IDL.Record({
+    'variables' : IDL.Record({ 'split' : IDL.Vec(IDL.Nat) }),
+  });
   const CreateRequest = IDL.Variant({
     'devefi_jes1_icpneuron' : CreateRequest__1,
+    'devefi_jes1_snsneuron' : CreateRequest__2,
+    'devefi_split' : CreateRequest__3,
   });
   const CreateNodeRequest = IDL.Tuple(CommonCreateRequest, CreateRequest);
   const TransferRequest = IDL.Record({
@@ -285,7 +317,135 @@ export const idlFactory = ({ IDL }) => {
       'followee' : Followee,
     }),
   });
-  const Shared = IDL.Variant({ 'devefi_jes1_icpneuron' : Shared__1 });
+  const SnsNeuronActivity = IDL.Variant({
+    'Ok' : IDL.Record({ 'operation' : IDL.Text, 'timestamp' : IDL.Nat64 }),
+    'Err' : IDL.Record({
+      'msg' : IDL.Text,
+      'operation' : IDL.Text,
+      'timestamp' : IDL.Nat64,
+    }),
+  });
+  const SnsNeuronUpdatingStatus = IDL.Variant({
+    'Calling' : IDL.Nat64,
+    'Done' : IDL.Nat64,
+    'Init' : IDL.Null,
+  });
+  const SnsParametersCache = IDL.Record({
+    'default_followees' : IDL.Opt(
+      IDL.Record({
+        'followees' : IDL.Vec(
+          IDL.Tuple(
+            IDL.Nat64,
+            IDL.Record({
+              'followees' : IDL.Vec(IDL.Record({ 'id' : IDL.Vec(IDL.Nat8) })),
+            }),
+          )
+        ),
+      })
+    ),
+    'max_dissolve_delay_seconds' : IDL.Opt(IDL.Nat64),
+    'max_dissolve_delay_bonus_percentage' : IDL.Opt(IDL.Nat64),
+    'max_followees_per_function' : IDL.Opt(IDL.Nat64),
+    'neuron_claimer_permissions' : IDL.Opt(
+      IDL.Record({ 'permissions' : IDL.Vec(IDL.Int32) })
+    ),
+    'neuron_minimum_stake_e8s' : IDL.Opt(IDL.Nat64),
+    'max_neuron_age_for_age_bonus' : IDL.Opt(IDL.Nat64),
+    'initial_voting_period_seconds' : IDL.Opt(IDL.Nat64),
+    'neuron_minimum_dissolve_delay_to_vote_seconds' : IDL.Opt(IDL.Nat64),
+    'reject_cost_e8s' : IDL.Opt(IDL.Nat64),
+    'max_proposals_to_keep_per_action' : IDL.Opt(IDL.Nat32),
+    'wait_for_quiet_deadline_increase_seconds' : IDL.Opt(IDL.Nat64),
+    'max_number_of_neurons' : IDL.Opt(IDL.Nat64),
+    'transaction_fee_e8s' : IDL.Opt(IDL.Nat64),
+    'max_number_of_proposals_with_ballots' : IDL.Opt(IDL.Nat64),
+    'max_age_bonus_percentage' : IDL.Opt(IDL.Nat64),
+    'neuron_grantable_permissions' : IDL.Opt(
+      IDL.Record({ 'permissions' : IDL.Vec(IDL.Int32) })
+    ),
+    'voting_rewards_parameters' : IDL.Opt(
+      IDL.Record({
+        'final_reward_rate_basis_points' : IDL.Opt(IDL.Nat64),
+        'initial_reward_rate_basis_points' : IDL.Opt(IDL.Nat64),
+        'reward_rate_transition_duration_seconds' : IDL.Opt(IDL.Nat64),
+        'round_duration_seconds' : IDL.Opt(IDL.Nat64),
+      })
+    ),
+    'maturity_modulation_disabled' : IDL.Opt(IDL.Bool),
+    'max_number_of_principals_per_neuron' : IDL.Opt(IDL.Nat64),
+  });
+  const SnsNeuronCache = IDL.Record({
+    'id' : IDL.Opt(IDL.Record({ 'id' : IDL.Vec(IDL.Nat8) })),
+    'permissions' : IDL.Vec(
+      IDL.Record({
+        'principal' : IDL.Opt(IDL.Principal),
+        'permission_type' : IDL.Vec(IDL.Int32),
+      })
+    ),
+    'maturity_e8s_equivalent' : IDL.Nat64,
+    'cached_neuron_stake_e8s' : IDL.Nat64,
+    'created_timestamp_seconds' : IDL.Nat64,
+    'source_nns_neuron_id' : IDL.Opt(IDL.Nat64),
+    'auto_stake_maturity' : IDL.Opt(IDL.Bool),
+    'aging_since_timestamp_seconds' : IDL.Nat64,
+    'dissolve_state' : IDL.Opt(
+      IDL.Variant({
+        'DissolveDelaySeconds' : IDL.Nat64,
+        'WhenDissolvedTimestampSeconds' : IDL.Nat64,
+      })
+    ),
+    'voting_power_percentage_multiplier' : IDL.Nat64,
+    'vesting_period_seconds' : IDL.Opt(IDL.Nat64),
+    'disburse_maturity_in_progress' : IDL.Vec(
+      IDL.Record({
+        'timestamp_of_disbursement_seconds' : IDL.Nat64,
+        'amount_e8s' : IDL.Nat64,
+        'account_to_disburse_to' : IDL.Opt(
+          IDL.Record({
+            'owner' : IDL.Opt(IDL.Principal),
+            'subaccount' : IDL.Opt(
+              IDL.Record({ 'subaccount' : IDL.Vec(IDL.Nat8) })
+            ),
+          })
+        ),
+        'finalize_disbursement_timestamp_seconds' : IDL.Opt(IDL.Nat64),
+      })
+    ),
+    'followees' : IDL.Vec(
+      IDL.Tuple(
+        IDL.Nat64,
+        IDL.Record({
+          'followees' : IDL.Vec(IDL.Record({ 'id' : IDL.Vec(IDL.Nat8) })),
+        }),
+      )
+    ),
+    'neuron_fees_e8s' : IDL.Nat64,
+  });
+  const Shared__2 = IDL.Record({
+    'log' : IDL.Vec(SnsNeuronActivity),
+    'internals' : IDL.Record({
+      'neuron_state' : IDL.Opt(IDL.Int32),
+      'governance_canister' : IDL.Opt(IDL.Principal),
+      'neuron_claimed' : IDL.Bool,
+      'refresh_idx' : IDL.Opt(IDL.Nat64),
+      'updating' : SnsNeuronUpdatingStatus,
+    }),
+    'parameters_cache' : IDL.Opt(SnsParametersCache),
+    'variables' : IDL.Record({
+      'dissolve_delay' : SnsDissolveDelay,
+      'dissolve_status' : SnsDissolveStatus,
+      'followee' : SnsFollowee,
+    }),
+    'neuron_cache' : IDL.Opt(SnsNeuronCache),
+  });
+  const Shared__3 = IDL.Record({
+    'variables' : IDL.Record({ 'split' : IDL.Vec(IDL.Nat) }),
+  });
+  const Shared = IDL.Variant({
+    'devefi_jes1_icpneuron' : Shared__1,
+    'devefi_jes1_snsneuron' : Shared__2,
+    'devefi_split' : Shared__3,
+  });
   const BillingTransactionFee = IDL.Variant({
     'none' : IDL.Null,
     'transaction_percentage_fee_e8s' : IDL.Nat,
@@ -437,7 +597,7 @@ export const idlFactory = ({ IDL }) => {
     }),
     'modules' : IDL.Vec(ModuleMeta),
   });
-  const _anon_class_14_1 = IDL.Service({
+  const _anon_class_16_1 = IDL.Service({
     'add_supported_ledger' : IDL.Func(
         [IDL.Principal, IDL.Variant({ 'icp' : IDL.Null, 'icrc' : IDL.Null })],
         [],
@@ -494,7 +654,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'icrc55_get_pylon_meta' : IDL.Func([], [PylonMetaResp], ['query']),
   });
-  return _anon_class_14_1;
+  return _anon_class_16_1;
 };
 export const init = ({ IDL }) => {
   const BillingFeeSplit = IDL.Record({
