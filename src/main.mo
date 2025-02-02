@@ -9,6 +9,8 @@ import MU_sys "mo:devefi/sys";
 import Ledgers "mo:devefi/ledgers";
 import ICRC55 "mo:devefi/ICRC55";
 import VecIcpNeuron "mo:devefi-jes1-icpneuron";
+import VecSnsNeuron "mo:devefi-jes1-snsneuron";
+import VecSplit "./utils/split/";
 import Core "mo:devefi/core";
 
 actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
@@ -77,10 +79,31 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     // Vector modules
     stable let mem_vec_icpneuron_1 = VecIcpNeuron.Mem.Vector.V1.new();
     stable let mem_vec_icpneuron_2 = VecIcpNeuron.Mem.Vector.V2.upgrade(mem_vec_icpneuron_1);
-    
-    let devefi_jes1_icpneuron = VecIcpNeuron.Mod({ xmem = mem_vec_icpneuron_2; core; });
 
-    let vmod = T.VectorModules({ devefi_jes1_icpneuron });
+    stable let mem_vec_snsneuron_1 = VecSnsNeuron.Mem.Vector.V1.new();
+
+    stable let mem_vec_split_1 = VecSplit.Mem.Vector.V1.new();
+
+    let devefi_jes1_icpneuron = VecIcpNeuron.Mod({
+        xmem = mem_vec_icpneuron_2;
+        core;
+    });
+
+    let devefi_jes1_snsneuron = VecSnsNeuron.Mod({
+        xmem = mem_vec_snsneuron_1;
+        core;
+    });
+
+    let devefi_split = VecSplit.Mod({
+        xmem = mem_vec_split_1;
+        core;
+    });
+
+    let vmod = T.VectorModules({
+        devefi_jes1_icpneuron;
+        devefi_jes1_snsneuron;
+        devefi_split;
+    });
 
     let sys = MU_sys.Mod<system, T.CreateRequest, T.Shared, T.ModifyRequest>({
         xmem = mem_core_1;
@@ -90,9 +113,16 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
         me_can;
     });
 
-    private func proc() { devefi_jes1_icpneuron.run() };
+    private func proc() {
+        devefi_jes1_icpneuron.run();
+        devefi_jes1_snsneuron.run();
+        devefi_split.run();
+    };
 
-    private func async_proc() : async* () { await* devefi_jes1_icpneuron.runAsync() };
+    private func async_proc() : async* () {
+        await* devefi_jes1_icpneuron.runAsync();
+        await* devefi_jes1_snsneuron.runAsync();
+    };
 
     ignore Timer.recurringTimer<system>(
         #seconds 30,
@@ -125,9 +155,9 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     };
 
     public query func icrc55_command_validate(req : ICRC55.BatchCommandRequest<T.CreateRequest, T.ModifyRequest>) : async ICRC55.ValidationResult {
-        #Ok(debug_show(req));
+        #Ok(debug_show (req));
     };
-    
+
     public query func icrc55_get_nodes(req : [ICRC55.GetNode]) : async [?MU_sys.NodeShared<T.Shared>] {
         sys.icrc55_get_nodes(req);
     };

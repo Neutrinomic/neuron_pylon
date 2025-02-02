@@ -14,7 +14,7 @@
         "output": "src/declarations"
       },
       "post_install": [
-        "cp .dfx/ic/canisters/neuron_pylon/neuron_pylon.wasm.gz src/wasm"
+        "cp .dfx/local/canisters/neuron_pylon/neuron_pylon.wasm.gz src/wasm"
       ]
     }
   },
