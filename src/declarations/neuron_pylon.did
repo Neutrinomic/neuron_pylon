@@ -1,4 +1,4 @@
-type _anon_class_14_1 = 
+type _anon_class_16_1 = 
  service {
    add_supported_ledger: (principal, variant {
                                        icp;
@@ -105,6 +105,138 @@ type SourceEndpointResp =
    endpoint: Endpoint;
    name: text;
  };
+type SnsParametersCache = 
+ record {
+   default_followees:
+    opt
+     record {
+       followees:
+        vec record {
+              nat64;
+              record {followees: vec record {id: blob;};};
+            };};
+   initial_voting_period_seconds: opt nat64;
+   maturity_modulation_disabled: opt bool;
+   max_age_bonus_percentage: opt nat64;
+   max_dissolve_delay_bonus_percentage: opt nat64;
+   max_dissolve_delay_seconds: opt nat64;
+   max_followees_per_function: opt nat64;
+   max_neuron_age_for_age_bonus: opt nat64;
+   max_number_of_neurons: opt nat64;
+   max_number_of_principals_per_neuron: opt nat64;
+   max_number_of_proposals_with_ballots: opt nat64;
+   max_proposals_to_keep_per_action: opt nat32;
+   neuron_claimer_permissions: opt record {permissions: vec int32;};
+   neuron_grantable_permissions: opt record {permissions: vec int32;};
+   neuron_minimum_dissolve_delay_to_vote_seconds: opt nat64;
+   neuron_minimum_stake_e8s: opt nat64;
+   reject_cost_e8s: opt nat64;
+   transaction_fee_e8s: opt nat64;
+   voting_rewards_parameters:
+    opt
+     record {
+       final_reward_rate_basis_points: opt nat64;
+       initial_reward_rate_basis_points: opt nat64;
+       reward_rate_transition_duration_seconds: opt nat64;
+       round_duration_seconds: opt nat64;
+     };
+   wait_for_quiet_deadline_increase_seconds: opt nat64;
+ };
+type SnsNeuronUpdatingStatus = 
+ variant {
+   Calling: nat64;
+   Done: nat64;
+   Init;
+ };
+type SnsNeuronCache = 
+ record {
+   aging_since_timestamp_seconds: nat64;
+   auto_stake_maturity: opt bool;
+   cached_neuron_stake_e8s: nat64;
+   created_timestamp_seconds: nat64;
+   disburse_maturity_in_progress:
+    vec
+     record {
+       account_to_disburse_to:
+        opt
+         record {
+           owner: opt principal;
+           subaccount: opt record {subaccount: blob;};
+         };
+       amount_e8s: nat64;
+       finalize_disbursement_timestamp_seconds: opt nat64;
+       timestamp_of_disbursement_seconds: nat64;
+     };
+   dissolve_state:
+    opt
+     variant {
+       DissolveDelaySeconds: nat64;
+       WhenDissolvedTimestampSeconds: nat64;
+     };
+   followees: vec record {
+                    nat64;
+                    record {followees: vec record {id: blob;};};
+                  };
+   id: opt record {id: blob;};
+   maturity_e8s_equivalent: nat64;
+   neuron_fees_e8s: nat64;
+   permissions:
+    vec record {
+          permission_type: vec int32;
+          "principal": opt principal;
+        };
+   source_nns_neuron_id: opt nat64;
+   vesting_period_seconds: opt nat64;
+   voting_power_percentage_multiplier: nat64;
+ };
+type SnsNeuronActivity = 
+ variant {
+   Err: record {
+          msg: text;
+          operation: text;
+          timestamp: nat64;
+        };
+   Ok: record {
+         operation: text;
+         timestamp: nat64;
+       };
+ };
+type SnsFollowee = 
+ variant {
+   FolloweeId: blob;
+   Unspecified;
+ };
+type SnsDissolveStatus = 
+ variant {
+   Dissolving;
+   Locked;
+ };
+type SnsDissolveDelay = 
+ variant {
+   Default;
+   DelayDays: nat64;
+ };
+type Shared__3 = record {variables: record {split: vec nat;};};
+type Shared__2 = 
+ record {
+   internals:
+    record {
+      governance_canister: opt principal;
+      neuron_claimed: bool;
+      neuron_state: opt int32;
+      refresh_idx: opt nat64;
+      updating: SnsNeuronUpdatingStatus;
+    };
+   log: vec SnsNeuronActivity;
+   neuron_cache: opt SnsNeuronCache;
+   parameters_cache: opt SnsParametersCache;
+   variables:
+    record {
+      dissolve_delay: SnsDissolveDelay;
+      dissolve_status: SnsDissolveStatus;
+      followee: SnsFollowee;
+    };
+ };
 type Shared__1 = 
  record {
    cache: SharedNeuronCache;
@@ -143,7 +275,12 @@ type SharedNeuronCache =
    voting_power: opt nat64;
    voting_power_refreshed_timestamp_seconds: opt nat64;
  };
-type Shared = variant {devefi_jes1_icpneuron: Shared__1;};
+type Shared = 
+ variant {
+   devefi_jes1_icpneuron: Shared__1;
+   devefi_jes1_snsneuron: Shared__2;
+   devefi_split: Shared__3;
+ };
 type SETTINGS = 
  record {
    ALLOW_TEMP_NODE_CREATION: bool;
@@ -206,13 +343,25 @@ type ModuleMeta =
    temporary_allowed: bool;
    version: Version;
  };
+type ModifyRequest__3 = record {split: vec nat;};
+type ModifyRequest__2 = 
+ record {
+   dissolve_delay: opt SnsDissolveDelay;
+   dissolve_status: opt SnsDissolveStatus;
+   followee: opt SnsFollowee;
+ };
 type ModifyRequest__1 = 
  record {
    dissolve_delay: opt DissolveDelay;
    dissolve_status: opt DissolveStatus;
    followee: opt Followee;
  };
-type ModifyRequest = variant {devefi_jes1_icpneuron: ModifyRequest__1;};
+type ModifyRequest = 
+ variant {
+   devefi_jes1_icpneuron: ModifyRequest__1;
+   devefi_jes1_snsneuron: ModifyRequest__2;
+   devefi_split: ModifyRequest__3;
+ };
 type ModifyNodeResponse = 
  variant {
    err: text;
@@ -405,6 +554,14 @@ type DataCertificate =
    certificate: blob;
    hash_tree: blob;
  };
+type CreateRequest__3 = record {variables: record {split: vec nat;};};
+type CreateRequest__2 = record {
+                          variables:
+                           record {
+                             dissolve_delay: SnsDissolveDelay;
+                             dissolve_status: SnsDissolveStatus;
+                             followee: SnsFollowee;
+                           };};
 type CreateRequest__1 = record {
                           variables:
                            record {
@@ -412,7 +569,12 @@ type CreateRequest__1 = record {
                              dissolve_status: DissolveStatus;
                              followee: Followee;
                            };};
-type CreateRequest = variant {devefi_jes1_icpneuron: CreateRequest__1;};
+type CreateRequest = 
+ variant {
+   devefi_jes1_icpneuron: CreateRequest__1;
+   devefi_jes1_snsneuron: CreateRequest__2;
+   devefi_split: CreateRequest__3;
+ };
 type CreateNodeResponse = 
  variant {
    err: text;
@@ -554,4 +716,4 @@ type Account =
    owner: principal;
    subaccount: opt blob;
  };
-service : (opt SETTINGS) -> _anon_class_14_1
+service : (opt SETTINGS) -> _anon_class_16_1

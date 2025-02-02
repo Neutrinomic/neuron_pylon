@@ -96,7 +96,9 @@ export interface Controller {
 export type CreateNodeRequest = [CommonCreateRequest, CreateRequest];
 export type CreateNodeResponse = { 'ok' : GetNodeResponse } |
   { 'err' : string };
-export type CreateRequest = { 'devefi_jes1_icpneuron' : CreateRequest__1 };
+export type CreateRequest = { 'devefi_jes1_icpneuron' : CreateRequest__1 } |
+  { 'devefi_jes1_snsneuron' : CreateRequest__2 } |
+  { 'devefi_split' : CreateRequest__3 };
 export interface CreateRequest__1 {
   'variables' : {
     'dissolve_delay' : DissolveDelay,
@@ -104,6 +106,14 @@ export interface CreateRequest__1 {
     'followee' : Followee,
   },
 }
+export interface CreateRequest__2 {
+  'variables' : {
+    'dissolve_delay' : SnsDissolveDelay,
+    'dissolve_status' : SnsDissolveStatus,
+    'followee' : SnsFollowee,
+  },
+}
+export interface CreateRequest__3 { 'variables' : { 'split' : Array<bigint> } }
 export interface DataCertificate {
   'certificate' : Uint8Array | number[],
   'hash_tree' : Uint8Array | number[],
@@ -236,12 +246,20 @@ export type ModifyNodeRequest = [
 ];
 export type ModifyNodeResponse = { 'ok' : GetNodeResponse } |
   { 'err' : string };
-export type ModifyRequest = { 'devefi_jes1_icpneuron' : ModifyRequest__1 };
+export type ModifyRequest = { 'devefi_jes1_icpneuron' : ModifyRequest__1 } |
+  { 'devefi_jes1_snsneuron' : ModifyRequest__2 } |
+  { 'devefi_split' : ModifyRequest__3 };
 export interface ModifyRequest__1 {
   'dissolve_delay' : [] | [DissolveDelay],
   'dissolve_status' : [] | [DissolveStatus],
   'followee' : [] | [Followee],
 }
+export interface ModifyRequest__2 {
+  'dissolve_delay' : [] | [SnsDissolveDelay],
+  'dissolve_status' : [] | [SnsDissolveStatus],
+  'followee' : [] | [SnsFollowee],
+}
+export interface ModifyRequest__3 { 'split' : Array<bigint> }
 export interface ModuleMeta {
   'id' : string,
   'create_allowed' : boolean,
@@ -296,7 +314,9 @@ export interface SETTINGS {
   'PYLON_GOVERNED_BY' : string,
   'REQUEST_MAX_EXPIRE_SEC' : bigint,
 }
-export type Shared = { 'devefi_jes1_icpneuron' : Shared__1 };
+export type Shared = { 'devefi_jes1_icpneuron' : Shared__1 } |
+  { 'devefi_jes1_snsneuron' : Shared__2 } |
+  { 'devefi_split' : Shared__3 };
 export interface SharedNeuronCache {
   'dissolve_delay_seconds' : [] | [bigint],
   'voting_power_refreshed_timestamp_seconds' : [] | [bigint],
@@ -326,6 +346,114 @@ export interface Shared__1 {
     'dissolve_status' : DissolveStatus,
     'followee' : Followee,
   },
+}
+export interface Shared__2 {
+  'log' : Array<SnsNeuronActivity>,
+  'internals' : {
+    'neuron_state' : [] | [number],
+    'governance_canister' : [] | [Principal],
+    'neuron_claimed' : boolean,
+    'refresh_idx' : [] | [bigint],
+    'updating' : SnsNeuronUpdatingStatus,
+  },
+  'parameters_cache' : [] | [SnsParametersCache],
+  'variables' : {
+    'dissolve_delay' : SnsDissolveDelay,
+    'dissolve_status' : SnsDissolveStatus,
+    'followee' : SnsFollowee,
+  },
+  'neuron_cache' : [] | [SnsNeuronCache],
+}
+export interface Shared__3 { 'variables' : { 'split' : Array<bigint> } }
+export type SnsDissolveDelay = { 'Default' : null } |
+  { 'DelayDays' : bigint };
+export type SnsDissolveStatus = { 'Locked' : null } |
+  { 'Dissolving' : null };
+export type SnsFollowee = { 'FolloweeId' : Uint8Array | number[] } |
+  { 'Unspecified' : null };
+export type SnsNeuronActivity = {
+    'Ok' : { 'operation' : string, 'timestamp' : bigint }
+  } |
+  { 'Err' : { 'msg' : string, 'operation' : string, 'timestamp' : bigint } };
+export interface SnsNeuronCache {
+  'id' : [] | [{ 'id' : Uint8Array | number[] }],
+  'permissions' : Array<
+    {
+      'principal' : [] | [Principal],
+      'permission_type' : Int32Array | number[],
+    }
+  >,
+  'maturity_e8s_equivalent' : bigint,
+  'cached_neuron_stake_e8s' : bigint,
+  'created_timestamp_seconds' : bigint,
+  'source_nns_neuron_id' : [] | [bigint],
+  'auto_stake_maturity' : [] | [boolean],
+  'aging_since_timestamp_seconds' : bigint,
+  'dissolve_state' : [] | [
+    { 'DissolveDelaySeconds' : bigint } |
+      { 'WhenDissolvedTimestampSeconds' : bigint }
+  ],
+  'voting_power_percentage_multiplier' : bigint,
+  'vesting_period_seconds' : [] | [bigint],
+  'disburse_maturity_in_progress' : Array<
+    {
+      'timestamp_of_disbursement_seconds' : bigint,
+      'amount_e8s' : bigint,
+      'account_to_disburse_to' : [] | [
+        {
+          'owner' : [] | [Principal],
+          'subaccount' : [] | [{ 'subaccount' : Uint8Array | number[] }],
+        }
+      ],
+      'finalize_disbursement_timestamp_seconds' : [] | [bigint],
+    }
+  >,
+  'followees' : Array<
+    [bigint, { 'followees' : Array<{ 'id' : Uint8Array | number[] }> }]
+  >,
+  'neuron_fees_e8s' : bigint,
+}
+export type SnsNeuronUpdatingStatus = { 'Calling' : bigint } |
+  { 'Done' : bigint } |
+  { 'Init' : null };
+export interface SnsParametersCache {
+  'default_followees' : [] | [
+    {
+      'followees' : Array<
+        [bigint, { 'followees' : Array<{ 'id' : Uint8Array | number[] }> }]
+      >,
+    }
+  ],
+  'max_dissolve_delay_seconds' : [] | [bigint],
+  'max_dissolve_delay_bonus_percentage' : [] | [bigint],
+  'max_followees_per_function' : [] | [bigint],
+  'neuron_claimer_permissions' : [] | [
+    { 'permissions' : Int32Array | number[] }
+  ],
+  'neuron_minimum_stake_e8s' : [] | [bigint],
+  'max_neuron_age_for_age_bonus' : [] | [bigint],
+  'initial_voting_period_seconds' : [] | [bigint],
+  'neuron_minimum_dissolve_delay_to_vote_seconds' : [] | [bigint],
+  'reject_cost_e8s' : [] | [bigint],
+  'max_proposals_to_keep_per_action' : [] | [number],
+  'wait_for_quiet_deadline_increase_seconds' : [] | [bigint],
+  'max_number_of_neurons' : [] | [bigint],
+  'transaction_fee_e8s' : [] | [bigint],
+  'max_number_of_proposals_with_ballots' : [] | [bigint],
+  'max_age_bonus_percentage' : [] | [bigint],
+  'neuron_grantable_permissions' : [] | [
+    { 'permissions' : Int32Array | number[] }
+  ],
+  'voting_rewards_parameters' : [] | [
+    {
+      'final_reward_rate_basis_points' : [] | [bigint],
+      'initial_reward_rate_basis_points' : [] | [bigint],
+      'reward_rate_transition_duration_seconds' : [] | [bigint],
+      'round_duration_seconds' : [] | [bigint],
+    }
+  ],
+  'maturity_modulation_disabled' : [] | [boolean],
+  'max_number_of_principals_per_neuron' : [] | [bigint],
 }
 export interface SourceEndpointResp {
   'balance' : bigint,
@@ -368,7 +496,7 @@ export type ValueMap = [string, Value];
 export type Version = { 'alpha' : Uint16Array | number[] } |
   { 'beta' : Uint16Array | number[] } |
   { 'release' : Uint16Array | number[] };
-export interface _anon_class_14_1 {
+export interface _anon_class_16_1 {
   'add_supported_ledger' : ActorMethod<
     [Principal, { 'icp' : null } | { 'icrc' : null }],
     undefined
@@ -394,6 +522,6 @@ export interface _anon_class_14_1 {
   'icrc55_get_nodes' : ActorMethod<[Array<GetNode>], Array<[] | [NodeShared]>>,
   'icrc55_get_pylon_meta' : ActorMethod<[], PylonMetaResp>,
 }
-export interface _SERVICE extends _anon_class_14_1 {}
+export interface _SERVICE extends _anon_class_16_1 {}
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
