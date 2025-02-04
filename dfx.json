@@ -5,7 +5,7 @@
       "type": "motoko",
       "pullable": {
         "dependencies": [],
-        "wasm_url": "https://github.com/jesssekeogh/neuron_pylon/raw/refs/heads/main/src/wasm/neuron_pylon.wasm.gz",
+        "wasm_url": "https://github.com/Neutrinomic/neuron_pylon/raw/refs/heads/main/src/wasm/neuron_pylon.wasm.gz",
         "init_guide": "dfx deps pull"
       },
       "gzip": true,
