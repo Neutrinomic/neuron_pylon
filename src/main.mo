@@ -198,9 +198,11 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     // ---------- Debug functions -----------
 
     // TODO Remove once add_supported_ledger is implemented into ICRC_55
-    dvf.add_ledger<system>(Principal.fromText("f54if-eqaaa-aaaaq-aacea-cai"), #icrc);
-    dvf.add_ledger<system>(Principal.fromText("hvgxa-wqaaa-aaaaq-aacia-cai"), #icrc);
-    dvf.add_ledger<system>(Principal.fromText("ryjl3-tyaaa-aaaaa-aaaba-cai"), #icp);
+    dvf.add_ledger<system>(Principal.fromText("f54if-eqaaa-aaaaq-aacea-cai"), #icrc); // NTN
+    dvf.add_ledger<system>(Principal.fromText("hvgxa-wqaaa-aaaaq-aacia-cai"), #icrc); // SNEED
+    dvf.add_ledger<system>(Principal.fromText("mih44-vaaaa-aaaaq-aaekq-cai"), #icrc); // NFID
+    dvf.add_ledger<system>(Principal.fromText("2ouva-viaaa-aaaaq-aaamq-cai"), #icrc); // CHAT
+    dvf.add_ledger<system>(Principal.fromText("ryjl3-tyaaa-aaaaa-aaaba-cai"), #icp); // ICP
     
     public shared ({ caller }) func add_supported_ledger(id : Principal, ltype : { #icp; #icrc }) : () {
         assert Principal.isController(caller);
