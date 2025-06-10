@@ -52,8 +52,8 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
                     exempt_daily_cost_balance = null;
                     split = {
                         platform = 20;
-                        pylon = 20;
-                        author = 40;
+                        pylon = 10;
+                        author = 50;
                         affiliate = 20;
                     };
                     pylon_account = {
@@ -81,6 +81,7 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     stable let mem_vec_icpneuron_2 = VecIcpNeuron.Mem.Vector.V2.upgrade(mem_vec_icpneuron_1);
 
     stable let mem_vec_snsneuron_1 = VecSnsNeuron.Mem.Vector.V1.new();
+    stable let mem_vec_snsneuron_2 = VecSnsNeuron.Mem.Vector.V2.upgrade(mem_vec_snsneuron_1);
 
     stable let mem_vec_split_1 = VecSplit.Mem.Vector.V1.new();
 
@@ -90,7 +91,7 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     });
 
     let devefi_jes1_snsneuron = VecSnsNeuron.Mod({
-        xmem = mem_vec_snsneuron_1;
+        xmem = mem_vec_snsneuron_2;
         core;
     });
 
@@ -196,7 +197,9 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     };
 
     // ---------- Debug functions -----------
-    
+
+    dvf.add_ledger<system>(Principal.fromText("o7oak-iyaaa-aaaaq-aadzq-cai"), #icrc);
+
     public shared ({ caller }) func add_supported_ledger(id : Principal, ltype : { #icp; #icrc }) : () {
         assert Principal.isController(caller);
         dvf.add_ledger<system>(id, ltype);

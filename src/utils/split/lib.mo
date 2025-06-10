@@ -42,7 +42,7 @@ module {
                 billing = [
                     {
                         cost_per_day = 0;
-                        transaction_fee = #none;
+                        transaction_fee = #flat_fee_multiplier(5);
                     },
                 ];
                 sources = sources(0);

@@ -376,6 +376,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const SnsNeuronCache = IDL.Record({
     'id' : IDL.Opt(IDL.Record({ 'id' : IDL.Vec(IDL.Nat8) })),
+    'staked_maturity_e8s_equivalent' : IDL.Opt(IDL.Nat64),
     'permissions' : IDL.Vec(
       IDL.Record({
         'principal' : IDL.Opt(IDL.Principal),
@@ -385,6 +386,36 @@ export const idlFactory = ({ IDL }) => {
     'maturity_e8s_equivalent' : IDL.Nat64,
     'cached_neuron_stake_e8s' : IDL.Nat64,
     'created_timestamp_seconds' : IDL.Nat64,
+    'topic_followees' : IDL.Opt(
+      IDL.Record({
+        'topic_id_to_followees' : IDL.Vec(
+          IDL.Tuple(
+            IDL.Int32,
+            IDL.Record({
+              'topic' : IDL.Opt(
+                IDL.Variant({
+                  'DappCanisterManagement' : IDL.Null,
+                  'DaoCommunitySettings' : IDL.Null,
+                  'ApplicationBusinessLogic' : IDL.Null,
+                  'CriticalDappOperations' : IDL.Null,
+                  'TreasuryAssetManagement' : IDL.Null,
+                  'Governance' : IDL.Null,
+                  'SnsFrameworkManagement' : IDL.Null,
+                })
+              ),
+              'followees' : IDL.Vec(
+                IDL.Record({
+                  'alias' : IDL.Opt(IDL.Text),
+                  'neuron_id' : IDL.Opt(
+                    IDL.Record({ 'id' : IDL.Vec(IDL.Nat8) })
+                  ),
+                })
+              ),
+            }),
+          )
+        ),
+      })
+    ),
     'source_nns_neuron_id' : IDL.Opt(IDL.Nat64),
     'auto_stake_maturity' : IDL.Opt(IDL.Bool),
     'aging_since_timestamp_seconds' : IDL.Nat64,

@@ -186,6 +186,33 @@ type SnsNeuronCache =
           "principal": opt principal;
         };
    source_nns_neuron_id: opt nat64;
+   staked_maturity_e8s_equivalent: opt nat64;
+   topic_followees:
+    opt
+     record {
+       topic_id_to_followees:
+        vec
+         record {
+           int32;
+           record {
+             followees:
+              vec record {
+                    alias: opt text;
+                    neuron_id: opt record {id: blob;};
+                  };
+             topic:
+              opt
+               variant {
+                 ApplicationBusinessLogic;
+                 CriticalDappOperations;
+                 DaoCommunitySettings;
+                 DappCanisterManagement;
+                 Governance;
+                 SnsFrameworkManagement;
+                 TreasuryAssetManagement;
+               };
+           };
+         };};
    vesting_period_seconds: opt nat64;
    voting_power_percentage_multiplier: nat64;
  };

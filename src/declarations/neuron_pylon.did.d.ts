@@ -377,6 +377,7 @@ export type SnsNeuronActivity = {
   { 'Err' : { 'msg' : string, 'operation' : string, 'timestamp' : bigint } };
 export interface SnsNeuronCache {
   'id' : [] | [{ 'id' : Uint8Array | number[] }],
+  'staked_maturity_e8s_equivalent' : [] | [bigint],
   'permissions' : Array<
     {
       'principal' : [] | [Principal],
@@ -386,6 +387,32 @@ export interface SnsNeuronCache {
   'maturity_e8s_equivalent' : bigint,
   'cached_neuron_stake_e8s' : bigint,
   'created_timestamp_seconds' : bigint,
+  'topic_followees' : [] | [
+    {
+      'topic_id_to_followees' : Array<
+        [
+          number,
+          {
+            'topic' : [] | [
+              { 'DappCanisterManagement' : null } |
+                { 'DaoCommunitySettings' : null } |
+                { 'ApplicationBusinessLogic' : null } |
+                { 'CriticalDappOperations' : null } |
+                { 'TreasuryAssetManagement' : null } |
+                { 'Governance' : null } |
+                { 'SnsFrameworkManagement' : null }
+            ],
+            'followees' : Array<
+              {
+                'alias' : [] | [string],
+                'neuron_id' : [] | [{ 'id' : Uint8Array | number[] }],
+              }
+            >,
+          },
+        ]
+      >,
+    }
+  ],
   'source_nns_neuron_id' : [] | [bigint],
   'auto_stake_maturity' : [] | [boolean],
   'aging_since_timestamp_seconds' : bigint,
