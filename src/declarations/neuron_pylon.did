@@ -1,23 +1,24 @@
-type _anon_class_16_1 = 
+type _anon_class_17_1 = 
  service {
-   add_supported_ledger: (principal, variant {
-                                       icp;
-                                       icrc;
-                                     }) -> () oneway;
+   add_supported_ledger: (id: principal, ltype: variant {
+                                                  icp;
+                                                  icrc;
+                                                }) -> () oneway;
    get_ledger_errors: () -> (vec vec text) query;
    get_ledgers_info: () -> (vec LedgerInfo__1) query;
-   icrc3_get_archives: (GetArchivesArgs) -> (GetArchivesResult) query;
-   icrc3_get_blocks: (GetBlocksArgs) -> (GetBlocksResult) query;
+   icrc3_get_archives: (args: GetArchivesArgs) -> (GetArchivesResult) query;
+   icrc3_get_blocks: (args: GetBlocksArgs) -> (GetBlocksResult) query;
    icrc3_get_tip_certificate: () -> (opt DataCertificate) query;
    icrc3_supported_block_types: () -> (vec BlockType) query;
-   icrc55_account_register: (Account) -> ();
-   icrc55_accounts: (AccountsRequest) -> (AccountsResponse) query;
-   icrc55_command: (BatchCommandRequest) -> (BatchCommandResponse);
-   icrc55_command_validate: (BatchCommandRequest) -> (ValidationResult) query;
-   icrc55_get_controller_nodes: (GetControllerNodesRequest) ->
+   icrc55_account_register: (acc: Account) -> ();
+   icrc55_accounts: (req: AccountsRequest) -> (AccountsResponse) query;
+   icrc55_command: (req: BatchCommandRequest) -> (BatchCommandResponse);
+   icrc55_command_validate: (req: BatchCommandRequest) ->
+    (ValidationResult) query;
+   icrc55_get_controller_nodes: (req: GetControllerNodesRequest) ->
     (vec NodeShared) query;
-   icrc55_get_defaults: (text) -> (CreateRequest) query;
-   icrc55_get_nodes: (vec GetNode) -> (vec opt NodeShared) query;
+   icrc55_get_defaults: (id: text) -> (CreateRequest) query;
+   icrc55_get_nodes: (req: vec GetNode) -> (vec opt NodeShared) query;
    icrc55_get_pylon_meta: () -> (PylonMetaResp) query;
  };
 type Version = 
@@ -743,4 +744,4 @@ type Account =
    owner: principal;
    subaccount: opt blob;
  };
-service : (opt SETTINGS) -> _anon_class_16_1
+service : (DFV_SETTINGS: opt SETTINGS) -> _anon_class_17_1

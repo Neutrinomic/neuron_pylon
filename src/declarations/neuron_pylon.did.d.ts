@@ -523,7 +523,7 @@ export type ValueMap = [string, Value];
 export type Version = { 'alpha' : Uint16Array | number[] } |
   { 'beta' : Uint16Array | number[] } |
   { 'release' : Uint16Array | number[] };
-export interface _anon_class_16_1 {
+export interface _anon_class_17_1 {
   'add_supported_ledger' : ActorMethod<
     [Principal, { 'icp' : null } | { 'icrc' : null }],
     undefined
@@ -549,6 +549,6 @@ export interface _anon_class_16_1 {
   'icrc55_get_nodes' : ActorMethod<[Array<GetNode>], Array<[] | [NodeShared]>>,
   'icrc55_get_pylon_meta' : ActorMethod<[], PylonMetaResp>,
 }
-export interface _SERVICE extends _anon_class_16_1 {}
+export interface _SERVICE extends _anon_class_17_1 {}
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
