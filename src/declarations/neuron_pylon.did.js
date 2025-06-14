@@ -628,7 +628,7 @@ export const idlFactory = ({ IDL }) => {
     }),
     'modules' : IDL.Vec(ModuleMeta),
   });
-  const _anon_class_16_1 = IDL.Service({
+  const _anon_class_17_1 = IDL.Service({
     'add_supported_ledger' : IDL.Func(
         [IDL.Principal, IDL.Variant({ 'icp' : IDL.Null, 'icrc' : IDL.Null })],
         [],
@@ -685,7 +685,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'icrc55_get_pylon_meta' : IDL.Func([], [PylonMetaResp], ['query']),
   });
-  return _anon_class_16_1;
+  return _anon_class_17_1;
 };
 export const init = ({ IDL }) => {
   const BillingFeeSplit = IDL.Record({
