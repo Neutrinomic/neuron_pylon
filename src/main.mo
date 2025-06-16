@@ -12,6 +12,7 @@ import VecIcpNeuron "mo:devefi-jes1-icpneuron";
 import VecSnsNeuron "mo:devefi-jes1-snsneuron";
 import VecSplit "./utils/split/";
 import Core "mo:devefi/core";
+import Chrono "mo:chronotrinite/client";
 
 actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
 
@@ -31,13 +32,20 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
         me_can;
     });
 
+    stable let chrono_mem_v1 = Chrono.Mem.ChronoClient.V1.new({
+        router = Principal.fromText("hik73-dyaaa-aaaal-qsaqa-cai");
+    });
+
+    let chrono = Chrono.ChronoClient<system>({ xmem = chrono_mem_v1 });
+
     stable let dvf_mem_1 = Ledgers.Mem.Ledgers.V1.new();
 
-    let dvf = Ledgers.Ledgers<system>({ xmem = dvf_mem_1; me_can });
+    let dvf = Ledgers.Ledgers<system>({ xmem = dvf_mem_1; me_can; chrono });
 
     stable let mem_core_1 = Core.Mem.Core.V1.new();
 
     let core = Core.Mod<system>({
+        _chrono = chrono;
         xmem = mem_core_1;
         settings = Option.get(
             DFV_SETTINGS,
@@ -46,10 +54,9 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
                 PYLON_GOVERNED_BY = "Neutrinite DAO";
                 BILLING = {
                     ledger = Principal.fromText("f54if-eqaaa-aaaaq-aacea-cai");
-                    min_create_balance = 50000000;
+                    min_create_balance = 200000000;
                     operation_cost = 20_000;
                     freezing_threshold_days = 10;
-                    exempt_daily_cost_balance = null;
                     split = {
                         platform = 20;
                         pylon = 10;
@@ -72,7 +79,6 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
             } : Core.SETTINGS,
         );
         dvf;
-        chain;
         me_can;
     });
 
