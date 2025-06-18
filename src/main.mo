@@ -85,6 +85,7 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     // Vector modules
     stable let mem_vec_icpneuron_1 = VecIcpNeuron.Mem.Vector.V1.new();
     stable let mem_vec_icpneuron_2 = VecIcpNeuron.Mem.Vector.V2.upgrade(mem_vec_icpneuron_1);
+    stable let mem_vec_icpneuron_3 = VecIcpNeuron.Mem.Vector.V3.upgrade(mem_vec_icpneuron_2);
 
     stable let mem_vec_snsneuron_1 = VecSnsNeuron.Mem.Vector.V1.new();
     stable let mem_vec_snsneuron_2 = VecSnsNeuron.Mem.Vector.V2.upgrade(mem_vec_snsneuron_1);
@@ -92,7 +93,7 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     stable let mem_vec_split_1 = VecSplit.Mem.Vector.V1.new();
 
     let devefi_jes1_icpneuron = VecIcpNeuron.Mod({
-        xmem = mem_vec_icpneuron_2;
+        xmem = mem_vec_icpneuron_3;
         core;
     });
 
