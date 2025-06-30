@@ -106,10 +106,10 @@ module {
 
         module Run {
             public func single(vid : T.NodeId, vec : T.NodeCoreMem, n : VM.NodeMem) : () {
-
                 let ?source = core.getSource(vid, vec, 0) else return;
                 let bal = core.Source.balance(source);
                 let fee = core.Source.fee(source);
+                let feeThreshold = fee * 50;
 
                 // First loop: Calculate totalSplit and find the largest share destination
                 var totalSplit = 0;
@@ -131,6 +131,17 @@ module {
                 // If no valid destinations, skip the rest of the loop
                 if (totalSplit == 0) return;
 
+                // Pre-check loop: Ensure each destination has a valid amount
+                label precheckLoop for (port_id in n.variables.split.keys()) {
+                    if (not core.hasDestination(vec, port_id)) continue precheckLoop;
+
+                    let splitShare = n.variables.split[port_id];
+
+                    let amount = bal * splitShare / totalSplit;
+
+                    if (amount <= feeThreshold) return;
+                };
+
                 var remainingBalance = bal;
 
                 // Second loop: Send to each valid destination
@@ -143,7 +154,6 @@ module {
                     if (?port_id == largestPort) continue port_send;
 
                     let amount = bal * splitShare / totalSplit;
-                    if (amount <= fee * 100) continue port_send; // Skip if below fee threshold
 
                     let #ok(intent) = core.Source.Send.intent(source, #destination({ port = port_id }), amount) else return;
                     ignore core.Source.Send.commit(intent);
