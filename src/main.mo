@@ -205,8 +205,6 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
 
     // ---------- Debug functions -----------
 
-    dvf.add_ledger<system>(Principal.fromText("o7oak-iyaaa-aaaaq-aadzq-cai"), #icrc);
-
     public shared ({ caller }) func add_supported_ledger(id : Principal, ltype : { #icp; #icrc }) : () {
         assert Principal.isController(caller);
         dvf.add_ledger<system>(id, ltype);
