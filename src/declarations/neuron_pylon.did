@@ -1,11 +1,13 @@
-type _anon_class_17_1 = 
+type _anon_class_19_1 = 
  service {
    add_supported_ledger: (id: principal, ltype: variant {
                                                   icp;
                                                   icrc;
                                                 }) -> () oneway;
+   clear_pending_transactions: () -> ();
    get_ledger_errors: () -> (vec vec text) query;
    get_ledgers_info: () -> (vec LedgerInfo__1) query;
+   get_pending_transactions: () -> (vec PendingTransactions) query;
    icrc3_get_archives: (args: GetArchivesArgs) -> (GetArchivesResult) query;
    icrc3_get_blocks: (args: GetBlocksArgs) -> (GetBlocksResult) query;
    icrc3_get_tip_certificate: () -> (opt DataCertificate) query;
@@ -69,11 +71,13 @@ type TransferRequest =
             };
     };
    ledger: SupportedLedger;
+   memo: opt blob;
    to:
     variant {
       account: Account;
       external_account: variant {
                           ic: Account;
+                          icp: blob;
                           other: blob;
                         };
       node: record {
@@ -86,6 +90,19 @@ type TransferRequest =
               source_idx: EndpointIdx;
             };
     };
+ };
+type TransactionShared = 
+ record {
+   amount: nat;
+   created_at_time: nat64;
+   from_subaccount: opt blob;
+   id: variant {
+         "blob": blob;
+         n64: nat64;
+       };
+   memo: blob;
+   to: AccountMixed;
+   tries: nat;
  };
 type TransactionRange = 
  record {
@@ -244,8 +261,8 @@ type SnsDissolveDelay =
    Default;
    DelayDays: nat64;
  };
-type Shared__3 = record {variables: record {split: vec nat;};};
-type Shared__2 = 
+type Shared__5 = record {variables: record {split: vec nat;};};
+type Shared__4 = 
  record {
    internals:
     record {
@@ -264,6 +281,21 @@ type Shared__2 =
       dissolve_status: SnsDissolveStatus;
       followee: SnsFollowee;
     };
+ };
+type Shared__3 = record {variables: record {
+                                      names: vec text;
+                                      split: vec nat;
+                                    };};
+type Shared__2 = 
+ record {
+   internals:
+    record {
+      block_idx: opt nat;
+      cycles_to_send: opt nat;
+      tx_idx: opt nat64;
+      updating: UpdatingStatus;
+    };
+   log: vec Activity;
  };
 type Shared__1 = 
  record {
@@ -320,8 +352,10 @@ type SharedNeuronCache =
 type Shared = 
  variant {
    devefi_jes1_icpneuron: Shared__1;
-   devefi_jes1_snsneuron: Shared__2;
-   devefi_split: Shared__3;
+   devefi_jes1_ntc_mint: Shared__2;
+   devefi_jes1_ntc_redeem: Shared__3;
+   devefi_jes1_snsneuron: Shared__4;
+   devefi_split: Shared__5;
  };
 type SETTINGS = 
  record {
@@ -345,6 +379,11 @@ type PylonMetaResp =
                       allowed: bool;
                       expire_sec: nat64;
                     };
+ };
+type PendingTransactions = 
+ record {
+   id: principal;
+   transactions: vec TransactionShared;
  };
 type NodeShared = 
  record {
@@ -385,13 +424,19 @@ type ModuleMeta =
    temporary_allowed: bool;
    version: Version;
  };
-type ModifyRequest__3 = record {split: vec nat;};
-type ModifyRequest__2 = 
+type ModifyRequest__5 = record {split: vec nat;};
+type ModifyRequest__4 = 
  record {
    dissolve_delay: opt SnsDissolveDelay;
    dissolve_status: opt SnsDissolveStatus;
    followee: opt SnsFollowee;
  };
+type ModifyRequest__3 = 
+ record {
+   names: vec text;
+   split: vec nat;
+ };
+type ModifyRequest__2 = record {};
 type ModifyRequest__1 = 
  record {
    dissolve_delay: opt DissolveDelay;
@@ -401,8 +446,10 @@ type ModifyRequest__1 =
 type ModifyRequest = 
  variant {
    devefi_jes1_icpneuron: ModifyRequest__1;
-   devefi_jes1_snsneuron: ModifyRequest__2;
-   devefi_split: ModifyRequest__3;
+   devefi_jes1_ntc_mint: ModifyRequest__2;
+   devefi_jes1_ntc_redeem: ModifyRequest__3;
+   devefi_jes1_snsneuron: ModifyRequest__4;
+   devefi_split: ModifyRequest__5;
  };
 type ModifyNodeResponse = 
  variant {
@@ -422,7 +469,7 @@ type LedgerInfo__1 =
    id: principal;
    info: variant {
            icp: Info;
-           icrc: Info__1;
+           icrc: Info;
          };
  };
 type LedgerInfo = 
@@ -443,21 +490,10 @@ type InputAddress =
            source_idx: EndpointIdx;
          };
  };
-type Info__1 = 
- record {
-   accounts: nat;
-   actor_principal: principal;
-   errors: nat;
-   lastTxTime: nat64;
-   last_indexed_tx: nat;
-   pending: nat;
-   reader_instructions_cost: nat64;
-   sender_instructions_cost: nat64;
- };
 type Info = 
  record {
    accounts: nat;
-   actor_principal: opt principal;
+   actor_principal: principal;
    errors: nat;
    lastTxTime: nat64;
    last_indexed_tx: nat;
@@ -596,14 +632,20 @@ type DataCertificate =
    certificate: blob;
    hash_tree: blob;
  };
-type CreateRequest__3 = record {variables: record {split: vec nat;};};
-type CreateRequest__2 = record {
+type CreateRequest__5 = record {variables: record {split: vec nat;};};
+type CreateRequest__4 = record {
                           variables:
                            record {
                              dissolve_delay: SnsDissolveDelay;
                              dissolve_status: SnsDissolveStatus;
                              followee: SnsFollowee;
                            };};
+type CreateRequest__3 = record {
+                          variables: record {
+                                       names: vec text;
+                                       split: vec nat;
+                                     };};
+type CreateRequest__2 = record {};
 type CreateRequest__1 = record {
                           variables:
                            record {
@@ -614,8 +656,10 @@ type CreateRequest__1 = record {
 type CreateRequest = 
  variant {
    devefi_jes1_icpneuron: CreateRequest__1;
-   devefi_jes1_snsneuron: CreateRequest__2;
-   devefi_split: CreateRequest__3;
+   devefi_jes1_ntc_mint: CreateRequest__2;
+   devefi_jes1_ntc_redeem: CreateRequest__3;
+   devefi_jes1_snsneuron: CreateRequest__4;
+   devefi_split: CreateRequest__5;
  };
 type CreateNodeResponse = 
  variant {
@@ -748,6 +792,11 @@ type AccountsRequest =
    owner: principal;
    subaccount: opt blob;
  };
+type AccountMixed = 
+ variant {
+   icp: blob;
+   icrc: Account;
+ };
 type AccountEndpoint = 
  record {
    balance: nat;
@@ -758,4 +807,4 @@ type Account =
    owner: principal;
    subaccount: opt blob;
  };
-service : (DFV_SETTINGS: opt SETTINGS) -> _anon_class_17_1
+service : (DFV_SETTINGS: opt SETTINGS) -> _anon_class_19_1
