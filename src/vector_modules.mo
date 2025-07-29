@@ -2,6 +2,8 @@ import ICRC55 "mo:devefi/ICRC55";
 import Core "mo:devefi/core";
 import VecIcpNeuron "mo:devefi-jes1-icpneuron";
 import VecSnsNeuron "mo:devefi-jes1-snsneuron";
+import VecNtcMint "mo:devefi-jes1-ntc/mint";
+import VecNtcRedeem "mo:devefi-jes1-ntc/redeem";
 import VecSplit "./utils/split/";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
@@ -12,18 +14,24 @@ module {
         #devefi_jes1_icpneuron : VecIcpNeuron.Interface.CreateRequest;
         #devefi_jes1_snsneuron : VecSnsNeuron.Interface.CreateRequest;
         #devefi_split : VecSplit.Interface.CreateRequest;
+        #devefi_jes1_ntc_mint : VecNtcMint.Interface.CreateRequest;
+        #devefi_jes1_ntc_redeem : VecNtcRedeem.Interface.CreateRequest;
     };
 
     public type Shared = {
         #devefi_jes1_icpneuron : VecIcpNeuron.Interface.Shared;
         #devefi_jes1_snsneuron : VecSnsNeuron.Interface.Shared;
         #devefi_split : VecSplit.Interface.Shared;
+        #devefi_jes1_ntc_mint : VecNtcMint.Interface.Shared;
+        #devefi_jes1_ntc_redeem : VecNtcRedeem.Interface.Shared;
     };
 
     public type ModifyRequest = {
         #devefi_jes1_icpneuron : VecIcpNeuron.Interface.ModifyRequest;
         #devefi_jes1_snsneuron : VecSnsNeuron.Interface.ModifyRequest;
         #devefi_split : VecSplit.Interface.ModifyRequest;
+        #devefi_jes1_ntc_mint : VecNtcMint.Interface.ModifyRequest;
+        #devefi_jes1_ntc_redeem : VecNtcRedeem.Interface.ModifyRequest;
     };
 
     public class VectorModules(
@@ -31,6 +39,8 @@ module {
             devefi_jes1_icpneuron : VecIcpNeuron.Mod;
             devefi_jes1_snsneuron : VecSnsNeuron.Mod;
             devefi_split : VecSplit.Mod;
+            devefi_jes1_ntc_mint : VecNtcMint.Mod;
+            devefi_jes1_ntc_redeem : VecNtcRedeem.Mod;
         }
     ) {
 
@@ -57,6 +67,21 @@ module {
                 };
             };
 
+            if (mid == VecNtcMint.ID) {
+                switch (m.devefi_jes1_ntc_mint.get(id, vec)) {
+                    case (#ok(x)) return #ok(#devefi_jes1_ntc_mint(x));
+                    case (#err(x)) return #err(x);
+                };
+            };
+
+            if (mid == VecNtcRedeem.ID) {
+                switch (m.devefi_jes1_ntc_redeem.get(id, vec)) {
+                    case (#ok(x)) return #ok(#devefi_jes1_ntc_redeem(x));
+                    case (#err(x)) return #err(x);
+                };
+            };
+
+
             #err("Unknown variant");
         };
 
@@ -64,6 +89,8 @@ module {
             if (mid == VecIcpNeuron.ID) return #devefi_jes1_icpneuron(m.devefi_jes1_icpneuron.defaults());
             if (mid == VecSnsNeuron.ID) return #devefi_jes1_snsneuron(m.devefi_jes1_snsneuron.defaults());
             if (mid == VecSplit.ID) return #devefi_split(m.devefi_split.defaults());
+            if (mid == VecNtcMint.ID) return #devefi_jes1_ntc_mint(m.devefi_jes1_ntc_mint.defaults());
+            if (mid == VecNtcRedeem.ID) return #devefi_jes1_ntc_redeem(m.devefi_jes1_ntc_redeem.defaults());
             Debug.trap("Unknown variant");
 
         };
@@ -72,6 +99,8 @@ module {
             if (mid == VecIcpNeuron.ID) return m.devefi_jes1_icpneuron.sources(id);
             if (mid == VecSnsNeuron.ID) return m.devefi_jes1_snsneuron.sources(id);
             if (mid == VecSplit.ID) return m.devefi_split.sources(id);
+            if (mid == VecNtcMint.ID) return m.devefi_jes1_ntc_mint.sources(id);
+            if (mid == VecNtcRedeem.ID) return m.devefi_jes1_ntc_redeem.sources(id);
             Debug.trap("Unknown variant");
 
         };
@@ -80,6 +109,8 @@ module {
             if (mid == VecIcpNeuron.ID) return m.devefi_jes1_icpneuron.destinations(id);
             if (mid == VecSnsNeuron.ID) return m.devefi_jes1_snsneuron.destinations(id);
             if (mid == VecSplit.ID) return m.devefi_split.destinations(id);
+            if (mid == VecNtcMint.ID) return m.devefi_jes1_ntc_mint.destinations(id);
+            if (mid == VecNtcRedeem.ID) return m.devefi_jes1_ntc_redeem.destinations(id);
             Debug.trap("Unknown variant");
         };
 
@@ -89,6 +120,8 @@ module {
                 case (#devefi_jes1_icpneuron(t)) return m.devefi_jes1_icpneuron.create(id, creq, t);
                 case (#devefi_jes1_snsneuron(t)) return m.devefi_jes1_snsneuron.create(id, creq, t);
                 case (#devefi_split(t)) return m.devefi_split.create(id, creq, t);
+                case (#devefi_jes1_ntc_mint(t)) return m.devefi_jes1_ntc_mint.create(id, creq, t);
+                case (#devefi_jes1_ntc_redeem(t)) return m.devefi_jes1_ntc_redeem.create(id, creq, t);
             };
             #err("Unknown variant or mismatch");
         };
@@ -98,6 +131,8 @@ module {
                 case (#devefi_jes1_icpneuron(r)) if (mid == VecIcpNeuron.ID) return m.devefi_jes1_icpneuron.modify(id, r);
                 case (#devefi_jes1_snsneuron(r)) if (mid == VecSnsNeuron.ID) return m.devefi_jes1_snsneuron.modify(id, r);
                 case (#devefi_split(r)) if (mid == VecSplit.ID) return m.devefi_split.modify(id, r);
+                case (#devefi_jes1_ntc_mint(r)) if (mid == VecNtcMint.ID) return m.devefi_jes1_ntc_mint.modify(id, r);
+                case (#devefi_jes1_ntc_redeem(r)) if (mid == VecNtcRedeem.ID) return m.devefi_jes1_ntc_redeem.modify(id, r);
             };
             #err("Unknown variant or mismatch");
         };
@@ -106,6 +141,8 @@ module {
             if (mid == VecIcpNeuron.ID) return m.devefi_jes1_icpneuron.delete(id);
             if (mid == VecSnsNeuron.ID) return m.devefi_jes1_snsneuron.delete(id);
             if (mid == VecSplit.ID) return m.devefi_split.delete(id);
+            if (mid == VecNtcMint.ID) return m.devefi_jes1_ntc_mint.delete(id);
+            if (mid == VecNtcRedeem.ID) return m.devefi_jes1_ntc_redeem.delete(id);
             Debug.trap("Unknown variant");
         };
 
@@ -113,6 +150,8 @@ module {
             if (mid == VecIcpNeuron.ID) return m.devefi_jes1_icpneuron.meta();
             if (mid == VecSnsNeuron.ID) return m.devefi_jes1_snsneuron.meta();
             if (mid == VecSplit.ID) return m.devefi_split.meta();
+            if (mid == VecNtcMint.ID) return m.devefi_jes1_ntc_mint.meta();
+            if (mid == VecNtcRedeem.ID) return m.devefi_jes1_ntc_redeem.meta();
             Debug.trap("Unknown variant");
         };
 
@@ -121,6 +160,8 @@ module {
                 m.devefi_jes1_icpneuron.meta(),
                 m.devefi_jes1_snsneuron.meta(),
                 m.devefi_split.meta(),
+                m.devefi_jes1_ntc_mint.meta(),
+                m.devefi_jes1_ntc_redeem.meta(),
             ];
         };
 

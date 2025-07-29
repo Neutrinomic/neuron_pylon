@@ -7,6 +7,8 @@ export interface Account {
   'subaccount' : [] | [Uint8Array | number[]],
 }
 export interface AccountEndpoint { 'balance' : bigint, 'endpoint' : Endpoint }
+export type AccountMixed = { 'icp' : Uint8Array | number[] } |
+  { 'icrc' : Account };
 export interface AccountsRequest {
   'owner' : Principal,
   'subaccount' : [] | [Uint8Array | number[]],
@@ -96,9 +98,11 @@ export interface Controller {
 export type CreateNodeRequest = [CommonCreateRequest, CreateRequest];
 export type CreateNodeResponse = { 'ok' : GetNodeResponse } |
   { 'err' : string };
-export type CreateRequest = { 'devefi_jes1_icpneuron' : CreateRequest__1 } |
-  { 'devefi_jes1_snsneuron' : CreateRequest__2 } |
-  { 'devefi_split' : CreateRequest__3 };
+export type CreateRequest = { 'devefi_jes1_ntc_redeem' : CreateRequest__3 } |
+  { 'devefi_jes1_icpneuron' : CreateRequest__1 } |
+  { 'devefi_jes1_ntc_mint' : CreateRequest__2 } |
+  { 'devefi_jes1_snsneuron' : CreateRequest__4 } |
+  { 'devefi_split' : CreateRequest__5 };
 export interface CreateRequest__1 {
   'variables' : {
     'dissolve_delay' : DissolveDelay,
@@ -106,14 +110,18 @@ export interface CreateRequest__1 {
     'followee' : Followee,
   },
 }
-export interface CreateRequest__2 {
+export type CreateRequest__2 = {};
+export interface CreateRequest__3 {
+  'variables' : { 'split' : Array<bigint>, 'names' : Array<string> },
+}
+export interface CreateRequest__4 {
   'variables' : {
     'dissolve_delay' : SnsDissolveDelay,
     'dissolve_status' : SnsDissolveStatus,
     'followee' : SnsFollowee,
   },
 }
-export interface CreateRequest__3 { 'variables' : { 'split' : Array<bigint> } }
+export interface CreateRequest__5 { 'variables' : { 'split' : Array<bigint> } }
 export interface DataCertificate {
   'certificate' : Uint8Array | number[],
   'hash_tree' : Uint8Array | number[],
@@ -207,16 +215,6 @@ export interface Info {
   'errors' : bigint,
   'lastTxTime' : bigint,
   'accounts' : bigint,
-  'actor_principal' : [] | [Principal],
-  'reader_instructions_cost' : bigint,
-  'sender_instructions_cost' : bigint,
-}
-export interface Info__1 {
-  'pending' : bigint,
-  'last_indexed_tx' : bigint,
-  'errors' : bigint,
-  'lastTxTime' : bigint,
-  'accounts' : bigint,
   'actor_principal' : Principal,
   'reader_instructions_cost' : bigint,
   'sender_instructions_cost' : bigint,
@@ -235,7 +233,7 @@ export interface LedgerInfo {
 export interface LedgerInfo__1 {
   'id' : Principal,
   'info' : { 'icp' : Info } |
-    { 'icrc' : Info__1 },
+    { 'icrc' : Info },
 }
 export type LedgerLabel = string;
 export type LocalNodeId = number;
@@ -246,20 +244,27 @@ export type ModifyNodeRequest = [
 ];
 export type ModifyNodeResponse = { 'ok' : GetNodeResponse } |
   { 'err' : string };
-export type ModifyRequest = { 'devefi_jes1_icpneuron' : ModifyRequest__1 } |
-  { 'devefi_jes1_snsneuron' : ModifyRequest__2 } |
-  { 'devefi_split' : ModifyRequest__3 };
+export type ModifyRequest = { 'devefi_jes1_ntc_redeem' : ModifyRequest__3 } |
+  { 'devefi_jes1_icpneuron' : ModifyRequest__1 } |
+  { 'devefi_jes1_ntc_mint' : ModifyRequest__2 } |
+  { 'devefi_jes1_snsneuron' : ModifyRequest__4 } |
+  { 'devefi_split' : ModifyRequest__5 };
 export interface ModifyRequest__1 {
   'dissolve_delay' : [] | [DissolveDelay],
   'dissolve_status' : [] | [DissolveStatus],
   'followee' : [] | [Followee],
 }
-export interface ModifyRequest__2 {
+export type ModifyRequest__2 = {};
+export interface ModifyRequest__3 {
+  'split' : Array<bigint>,
+  'names' : Array<string>,
+}
+export interface ModifyRequest__4 {
   'dissolve_delay' : [] | [SnsDissolveDelay],
   'dissolve_status' : [] | [SnsDissolveStatus],
   'followee' : [] | [SnsFollowee],
 }
-export interface ModifyRequest__3 { 'split' : Array<bigint> }
+export interface ModifyRequest__5 { 'split' : Array<bigint> }
 export interface ModuleMeta {
   'id' : string,
   'create_allowed' : boolean,
@@ -296,6 +301,10 @@ export interface NodeShared {
   'sources' : Array<SourceEndpointResp>,
   'refund' : Account,
 }
+export interface PendingTransactions {
+  'id' : Principal,
+  'transactions' : Array<TransactionShared>,
+}
 export interface PylonMetaResp {
   'name' : string,
   'billing' : BillingPylon,
@@ -314,9 +323,11 @@ export interface SETTINGS {
   'PYLON_GOVERNED_BY' : string,
   'REQUEST_MAX_EXPIRE_SEC' : bigint,
 }
-export type Shared = { 'devefi_jes1_icpneuron' : Shared__1 } |
-  { 'devefi_jes1_snsneuron' : Shared__2 } |
-  { 'devefi_split' : Shared__3 };
+export type Shared = { 'devefi_jes1_ntc_redeem' : Shared__3 } |
+  { 'devefi_jes1_icpneuron' : Shared__1 } |
+  { 'devefi_jes1_ntc_mint' : Shared__2 } |
+  { 'devefi_jes1_snsneuron' : Shared__4 } |
+  { 'devefi_split' : Shared__5 };
 export interface SharedNeuronCache {
   'dissolve_delay_seconds' : [] | [bigint],
   'voting_power_refreshed_timestamp_seconds' : [] | [bigint],
@@ -366,6 +377,18 @@ export interface Shared__1 {
   },
 }
 export interface Shared__2 {
+  'log' : Array<Activity>,
+  'internals' : {
+    'cycles_to_send' : [] | [bigint],
+    'block_idx' : [] | [bigint],
+    'updating' : UpdatingStatus,
+    'tx_idx' : [] | [bigint],
+  },
+}
+export interface Shared__3 {
+  'variables' : { 'split' : Array<bigint>, 'names' : Array<string> },
+}
+export interface Shared__4 {
   'log' : Array<SnsNeuronActivity>,
   'internals' : {
     'neuron_state' : [] | [number],
@@ -382,7 +405,7 @@ export interface Shared__2 {
   },
   'neuron_cache' : [] | [SnsNeuronCache],
 }
-export interface Shared__3 { 'variables' : { 'split' : Array<bigint> } }
+export interface Shared__5 { 'variables' : { 'split' : Array<bigint> } }
 export type SnsDissolveDelay = { 'Default' : null } |
   { 'DelayDays' : bigint };
 export type SnsDissolveStatus = { 'Locked' : null } |
@@ -508,12 +531,23 @@ export interface SourceEndpointResp {
 export type SupportedLedger = { 'ic' : Principal } |
   { 'other' : { 'platform' : bigint, 'ledger' : Uint8Array | number[] } };
 export interface TransactionRange { 'start' : bigint, 'length' : bigint }
+export interface TransactionShared {
+  'id' : { 'n64' : bigint } |
+    { 'blob' : Uint8Array | number[] },
+  'to' : AccountMixed,
+  'tries' : bigint,
+  'memo' : Uint8Array | number[],
+  'from_subaccount' : [] | [Uint8Array | number[]],
+  'created_at_time' : bigint,
+  'amount' : bigint,
+}
 export interface TransferRequest {
   'to' : { 'node_billing' : LocalNodeId } |
     { 'node' : { 'node_id' : LocalNodeId, 'endpoint_idx' : EndpointIdx } } |
     { 'temp' : { 'id' : number, 'source_idx' : EndpointIdx } } |
     {
       'external_account' : { 'ic' : Account } |
+        { 'icp' : Uint8Array | number[] } |
         { 'other' : Uint8Array | number[] }
     } |
     { 'account' : Account },
@@ -521,6 +555,7 @@ export interface TransferRequest {
       'node' : { 'node_id' : LocalNodeId, 'endpoint_idx' : EndpointIdx }
     } |
     { 'account' : Account },
+  'memo' : [] | [Uint8Array | number[]],
   'ledger' : SupportedLedger,
   'amount' : bigint,
 }
@@ -541,13 +576,15 @@ export type ValueMap = [string, Value];
 export type Version = { 'alpha' : Uint16Array | number[] } |
   { 'beta' : Uint16Array | number[] } |
   { 'release' : Uint16Array | number[] };
-export interface _anon_class_17_1 {
+export interface _anon_class_19_1 {
   'add_supported_ledger' : ActorMethod<
     [Principal, { 'icp' : null } | { 'icrc' : null }],
     undefined
   >,
+  'clear_pending_transactions' : ActorMethod<[], undefined>,
   'get_ledger_errors' : ActorMethod<[], Array<Array<string>>>,
   'get_ledgers_info' : ActorMethod<[], Array<LedgerInfo__1>>,
+  'get_pending_transactions' : ActorMethod<[], Array<PendingTransactions>>,
   'icrc3_get_archives' : ActorMethod<[GetArchivesArgs], GetArchivesResult>,
   'icrc3_get_blocks' : ActorMethod<[GetBlocksArgs], GetBlocksResult>,
   'icrc3_get_tip_certificate' : ActorMethod<[], [] | [DataCertificate]>,
@@ -567,6 +604,6 @@ export interface _anon_class_17_1 {
   'icrc55_get_nodes' : ActorMethod<[Array<GetNode>], Array<[] | [NodeShared]>>,
   'icrc55_get_pylon_meta' : ActorMethod<[], PylonMetaResp>,
 }
-export interface _SERVICE extends _anon_class_17_1 {}
+export interface _SERVICE extends _anon_class_19_1 {}
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

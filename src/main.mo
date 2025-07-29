@@ -10,6 +10,8 @@ import Ledgers "mo:devefi/ledgers";
 import ICRC55 "mo:devefi/ICRC55";
 import VecIcpNeuron "mo:devefi-jes1-icpneuron";
 import VecSnsNeuron "mo:devefi-jes1-snsneuron";
+import VecNtcMint "mo:devefi-jes1-ntc/mint";
+import VecNtcRedeem "mo:devefi-jes1-ntc/redeem";
 import VecSplit "./utils/split/";
 import Core "mo:devefi/core";
 import Chrono "mo:chronotrinite/client";
@@ -39,8 +41,9 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     let chrono = Chrono.ChronoClient<system>({ xmem = chrono_mem_v1 });
 
     stable let dvf_mem_1 = Ledgers.Mem.Ledgers.V1.new();
+    stable let dvf_mem_2 = Ledgers.Mem.Ledgers.V2.upgrade(dvf_mem_1);
 
-    let dvf = Ledgers.Ledgers<system>({ xmem = dvf_mem_1; me_can; chrono });
+    let dvf = Ledgers.Ledgers<system>({ xmem = dvf_mem_2; me_can; chrono });
 
     stable let mem_core_1 = Core.Mem.Core.V1.new();
 
@@ -92,6 +95,10 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
 
     stable let mem_vec_split_1 = VecSplit.Mem.Vector.V1.new();
 
+    stable let mem_vec_ntc_mint_1 = VecNtcMint.Mem.Vector.V1.new();
+
+    stable let mem_vec_ntc_redeem_1 = VecNtcRedeem.Mem.Vector.V1.new();
+
     let devefi_jes1_icpneuron = VecIcpNeuron.Mod({
         xmem = mem_vec_icpneuron_3;
         core;
@@ -107,10 +114,23 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
         core;
     });
 
+    let devefi_jes1_ntc_mint = VecNtcMint.Mod({
+        xmem = mem_vec_ntc_mint_1;
+        core;
+        dvf;
+    });
+
+    let devefi_jes1_ntc_redeem = VecNtcRedeem.Mod({
+        xmem = mem_vec_ntc_redeem_1;
+        core;
+    });
+
     let vmod = T.VectorModules({
         devefi_jes1_icpneuron;
         devefi_jes1_snsneuron;
         devefi_split;
+        devefi_jes1_ntc_mint;
+        devefi_jes1_ntc_redeem;
     });
 
     let sys = MU_sys.Mod<system, T.CreateRequest, T.Shared, T.ModifyRequest>({
@@ -125,11 +145,14 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
         devefi_jes1_icpneuron.run();
         devefi_jes1_snsneuron.run();
         devefi_split.run();
+        devefi_jes1_ntc_mint.run();
+        devefi_jes1_ntc_redeem.run();
     };
 
     private func async_proc() : async* () {
         await* devefi_jes1_icpneuron.runAsync();
         await* devefi_jes1_snsneuron.runAsync();
+        await* devefi_jes1_ntc_mint.runAsync();
     };
 
     ignore Timer.recurringTimer<system>(
@@ -205,8 +228,10 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
 
     // ---------- Debug functions -----------
 
+    let admin_id = Principal.fromText("v6ksx-vfv66-dlpks-agv2k-2pafk-yjlow-5fesr-dxigk-rzvzp-xrfbg-tae");
+
     public shared ({ caller }) func add_supported_ledger(id : Principal, ltype : { #icp; #icrc }) : () {
-        assert Principal.isController(caller);
+        assert ((caller == admin_id) or (Principal.isController(caller)));
         dvf.add_ledger<system>(id, ltype);
     };
 
@@ -216,6 +241,15 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
 
     public query func get_ledgers_info() : async [Ledgers.LedgerInfo] {
         dvf.getLedgersInfo();
+    };
+
+    public query func get_pending_transactions() : async [Ledgers.PendingTransactions] {
+        dvf.getPendingTransactions();
+    };
+
+    public shared ({ caller }) func clear_pending_transactions() : async () {
+        assert ((caller == admin_id) or (Principal.isController(caller)));
+        dvf.clearPendingTransactions();
     };
 
 };

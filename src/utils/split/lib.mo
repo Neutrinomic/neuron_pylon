@@ -48,7 +48,7 @@ module {
                 sources = sources(0);
                 destinations = destinations(0);
                 author_account = {
-                    owner = Principal.fromText("6jvpj-sqaaa-aaaaj-azwnq-cai");
+                    owner = Principal.fromText("jv4ws-fbili-a35rv-xd7a5-xwvxw-trink-oluun-g7bcp-oq5f6-35cba-vqe");
                     subaccount = null;
                 };
                 temporary_allowed = true;
@@ -155,7 +155,7 @@ module {
 
                     let amount = bal * splitShare / totalSplit;
 
-                    let #ok(intent) = core.Source.Send.intent(source, #destination({ port = port_id }), amount) else return;
+                    let #ok(intent) = core.Source.Send.intent(source, #destination({ port = port_id }), amount, null) else return;
                     ignore core.Source.Send.commit(intent);
                     remainingBalance -= amount;
                 };
@@ -163,7 +163,7 @@ module {
                 // Send the remaining balance to the largest share destination
                 if (remainingBalance > 0) {
                     ignore do ? {
-                        let #ok(intent) = core.Source.Send.intent(source, #destination({ port = largestPort! }), remainingBalance) else return;
+                        let #ok(intent) = core.Source.Send.intent(source, #destination({ port = largestPort! }), remainingBalance, null) else return;
                         ignore core.Source.Send.commit(intent);
                     };
                 };

@@ -35,23 +35,30 @@ export const idlFactory = ({ IDL }) => {
     'errors' : IDL.Nat,
     'lastTxTime' : IDL.Nat64,
     'accounts' : IDL.Nat,
-    'actor_principal' : IDL.Opt(IDL.Principal),
-    'reader_instructions_cost' : IDL.Nat64,
-    'sender_instructions_cost' : IDL.Nat64,
-  });
-  const Info__1 = IDL.Record({
-    'pending' : IDL.Nat,
-    'last_indexed_tx' : IDL.Nat,
-    'errors' : IDL.Nat,
-    'lastTxTime' : IDL.Nat64,
-    'accounts' : IDL.Nat,
     'actor_principal' : IDL.Principal,
     'reader_instructions_cost' : IDL.Nat64,
     'sender_instructions_cost' : IDL.Nat64,
   });
   const LedgerInfo__1 = IDL.Record({
     'id' : IDL.Principal,
-    'info' : IDL.Variant({ 'icp' : Info, 'icrc' : Info__1 }),
+    'info' : IDL.Variant({ 'icp' : Info, 'icrc' : Info }),
+  });
+  const AccountMixed = IDL.Variant({
+    'icp' : IDL.Vec(IDL.Nat8),
+    'icrc' : Account,
+  });
+  const TransactionShared = IDL.Record({
+    'id' : IDL.Variant({ 'n64' : IDL.Nat64, 'blob' : IDL.Vec(IDL.Nat8) }),
+    'to' : AccountMixed,
+    'tries' : IDL.Nat,
+    'memo' : IDL.Vec(IDL.Nat8),
+    'from_subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'created_at_time' : IDL.Nat64,
+    'amount' : IDL.Nat,
+  });
+  const PendingTransactions = IDL.Record({
+    'id' : IDL.Principal,
+    'transactions' : IDL.Vec(TransactionShared),
   });
   const GetArchivesArgs = IDL.Record({ 'from' : IDL.Opt(IDL.Principal) });
   const GetArchivesResultItem = IDL.Record({
@@ -144,6 +151,10 @@ export const idlFactory = ({ IDL }) => {
     'sources' : IDL.Opt(IDL.Vec(IDL.Opt(InputAddress))),
     'refund' : IDL.Opt(Account),
   });
+  const ModifyRequest__3 = IDL.Record({
+    'split' : IDL.Vec(IDL.Nat),
+    'names' : IDL.Vec(IDL.Text),
+  });
   const DissolveDelay = IDL.Variant({
     'Default' : IDL.Null,
     'DelayDays' : IDL.Nat64,
@@ -161,6 +172,7 @@ export const idlFactory = ({ IDL }) => {
     'dissolve_status' : IDL.Opt(DissolveStatus),
     'followee' : IDL.Opt(Followee),
   });
+  const ModifyRequest__2 = IDL.Record({});
   const SnsDissolveDelay = IDL.Variant({
     'Default' : IDL.Null,
     'DelayDays' : IDL.Nat64,
@@ -173,16 +185,18 @@ export const idlFactory = ({ IDL }) => {
     'FolloweeId' : IDL.Vec(IDL.Nat8),
     'Unspecified' : IDL.Null,
   });
-  const ModifyRequest__2 = IDL.Record({
+  const ModifyRequest__4 = IDL.Record({
     'dissolve_delay' : IDL.Opt(SnsDissolveDelay),
     'dissolve_status' : IDL.Opt(SnsDissolveStatus),
     'followee' : IDL.Opt(SnsFollowee),
   });
-  const ModifyRequest__3 = IDL.Record({ 'split' : IDL.Vec(IDL.Nat) });
+  const ModifyRequest__5 = IDL.Record({ 'split' : IDL.Vec(IDL.Nat) });
   const ModifyRequest = IDL.Variant({
+    'devefi_jes1_ntc_redeem' : ModifyRequest__3,
     'devefi_jes1_icpneuron' : ModifyRequest__1,
-    'devefi_jes1_snsneuron' : ModifyRequest__2,
-    'devefi_split' : ModifyRequest__3,
+    'devefi_jes1_ntc_mint' : ModifyRequest__2,
+    'devefi_jes1_snsneuron' : ModifyRequest__4,
+    'devefi_split' : ModifyRequest__5,
   });
   const ModifyNodeRequest = IDL.Tuple(
     LocalNodeId,
@@ -209,6 +223,12 @@ export const idlFactory = ({ IDL }) => {
     'temporary' : IDL.Bool,
     'refund' : Account,
   });
+  const CreateRequest__3 = IDL.Record({
+    'variables' : IDL.Record({
+      'split' : IDL.Vec(IDL.Nat),
+      'names' : IDL.Vec(IDL.Text),
+    }),
+  });
   const CreateRequest__1 = IDL.Record({
     'variables' : IDL.Record({
       'dissolve_delay' : DissolveDelay,
@@ -216,20 +236,23 @@ export const idlFactory = ({ IDL }) => {
       'followee' : Followee,
     }),
   });
-  const CreateRequest__2 = IDL.Record({
+  const CreateRequest__2 = IDL.Record({});
+  const CreateRequest__4 = IDL.Record({
     'variables' : IDL.Record({
       'dissolve_delay' : SnsDissolveDelay,
       'dissolve_status' : SnsDissolveStatus,
       'followee' : SnsFollowee,
     }),
   });
-  const CreateRequest__3 = IDL.Record({
+  const CreateRequest__5 = IDL.Record({
     'variables' : IDL.Record({ 'split' : IDL.Vec(IDL.Nat) }),
   });
   const CreateRequest = IDL.Variant({
+    'devefi_jes1_ntc_redeem' : CreateRequest__3,
     'devefi_jes1_icpneuron' : CreateRequest__1,
-    'devefi_jes1_snsneuron' : CreateRequest__2,
-    'devefi_split' : CreateRequest__3,
+    'devefi_jes1_ntc_mint' : CreateRequest__2,
+    'devefi_jes1_snsneuron' : CreateRequest__4,
+    'devefi_split' : CreateRequest__5,
   });
   const CreateNodeRequest = IDL.Tuple(CommonCreateRequest, CreateRequest);
   const TransferRequest = IDL.Record({
@@ -242,6 +265,7 @@ export const idlFactory = ({ IDL }) => {
       'temp' : IDL.Record({ 'id' : IDL.Nat32, 'source_idx' : EndpointIdx }),
       'external_account' : IDL.Variant({
         'ic' : Account,
+        'icp' : IDL.Vec(IDL.Nat8),
         'other' : IDL.Vec(IDL.Nat8),
       }),
       'account' : Account,
@@ -253,6 +277,7 @@ export const idlFactory = ({ IDL }) => {
       }),
       'account' : Account,
     }),
+    'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
     'ledger' : SupportedLedger,
     'amount' : IDL.Nat,
   });
@@ -268,6 +293,12 @@ export const idlFactory = ({ IDL }) => {
     'signature' : IDL.Opt(IDL.Vec(IDL.Nat8)),
     'expire_at' : IDL.Opt(IDL.Nat64),
     'commands' : IDL.Vec(Command),
+  });
+  const Shared__3 = IDL.Record({
+    'variables' : IDL.Record({
+      'split' : IDL.Vec(IDL.Nat),
+      'names' : IDL.Vec(IDL.Text),
+    }),
   });
   const Activity = IDL.Variant({
     'Ok' : IDL.Record({ 'operation' : IDL.Text, 'timestamp' : IDL.Nat64 }),
@@ -333,6 +364,15 @@ export const idlFactory = ({ IDL }) => {
       'dissolve_delay' : DissolveDelay,
       'dissolve_status' : DissolveStatus,
       'followee' : Followee,
+    }),
+  });
+  const Shared__2 = IDL.Record({
+    'log' : IDL.Vec(Activity),
+    'internals' : IDL.Record({
+      'cycles_to_send' : IDL.Opt(IDL.Nat),
+      'block_idx' : IDL.Opt(IDL.Nat),
+      'updating' : UpdatingStatus,
+      'tx_idx' : IDL.Opt(IDL.Nat64),
     }),
   });
   const SnsNeuronActivity = IDL.Variant({
@@ -470,7 +510,7 @@ export const idlFactory = ({ IDL }) => {
     ),
     'neuron_fees_e8s' : IDL.Nat64,
   });
-  const Shared__2 = IDL.Record({
+  const Shared__4 = IDL.Record({
     'log' : IDL.Vec(SnsNeuronActivity),
     'internals' : IDL.Record({
       'neuron_state' : IDL.Opt(IDL.Int32),
@@ -487,13 +527,15 @@ export const idlFactory = ({ IDL }) => {
     }),
     'neuron_cache' : IDL.Opt(SnsNeuronCache),
   });
-  const Shared__3 = IDL.Record({
+  const Shared__5 = IDL.Record({
     'variables' : IDL.Record({ 'split' : IDL.Vec(IDL.Nat) }),
   });
   const Shared = IDL.Variant({
+    'devefi_jes1_ntc_redeem' : Shared__3,
     'devefi_jes1_icpneuron' : Shared__1,
-    'devefi_jes1_snsneuron' : Shared__2,
-    'devefi_split' : Shared__3,
+    'devefi_jes1_ntc_mint' : Shared__2,
+    'devefi_jes1_snsneuron' : Shared__4,
+    'devefi_split' : Shared__5,
   });
   const BillingTransactionFee = IDL.Variant({
     'none' : IDL.Null,
@@ -646,14 +688,20 @@ export const idlFactory = ({ IDL }) => {
     }),
     'modules' : IDL.Vec(ModuleMeta),
   });
-  const _anon_class_17_1 = IDL.Service({
+  const _anon_class_19_1 = IDL.Service({
     'add_supported_ledger' : IDL.Func(
         [IDL.Principal, IDL.Variant({ 'icp' : IDL.Null, 'icrc' : IDL.Null })],
         [],
         ['oneway'],
       ),
+    'clear_pending_transactions' : IDL.Func([], [], []),
     'get_ledger_errors' : IDL.Func([], [IDL.Vec(IDL.Vec(IDL.Text))], ['query']),
     'get_ledgers_info' : IDL.Func([], [IDL.Vec(LedgerInfo__1)], ['query']),
+    'get_pending_transactions' : IDL.Func(
+        [],
+        [IDL.Vec(PendingTransactions)],
+        ['query'],
+      ),
     'icrc3_get_archives' : IDL.Func(
         [GetArchivesArgs],
         [GetArchivesResult],
@@ -703,7 +751,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'icrc55_get_pylon_meta' : IDL.Func([], [PylonMetaResp], ['query']),
   });
-  return _anon_class_17_1;
+  return _anon_class_19_1;
 };
 export const init = ({ IDL }) => {
   const BillingFeeSplit = IDL.Record({
