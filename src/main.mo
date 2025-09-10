@@ -89,6 +89,7 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     stable let mem_vec_icpneuron_1 = VecIcpNeuron.Mem.Vector.V1.new();
     stable let mem_vec_icpneuron_2 = VecIcpNeuron.Mem.Vector.V2.upgrade(mem_vec_icpneuron_1);
     stable let mem_vec_icpneuron_3 = VecIcpNeuron.Mem.Vector.V3.upgrade(mem_vec_icpneuron_2);
+    stable let mem_vec_icpneuron_4 = VecIcpNeuron.Mem.Vector.V4.upgrade(mem_vec_icpneuron_3);
 
     stable let mem_vec_snsneuron_1 = VecSnsNeuron.Mem.Vector.V1.new();
     stable let mem_vec_snsneuron_2 = VecSnsNeuron.Mem.Vector.V2.upgrade(mem_vec_snsneuron_1);
@@ -100,7 +101,7 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     stable let mem_vec_ntc_redeem_1 = VecNtcRedeem.Mem.Vector.V1.new();
 
     let devefi_jes1_icpneuron = VecIcpNeuron.Mod({
-        xmem = mem_vec_icpneuron_3;
+        xmem = mem_vec_icpneuron_4;
         core;
     });
 
@@ -224,6 +225,36 @@ actor class (DFV_SETTINGS : ?Core.SETTINGS) = this {
     };
     public query func icrc3_get_tip_certificate() : async ?Rechain.DataCertificate {
         return chain.icrc3_get_tip_certificate();
+    };
+
+    public shared ({ caller }) func icpneuron_vote({
+        caller_subaccount : ?Blob;
+        vid : Nat32;
+        neuronId : Nat64;
+        proposal : Nat64;
+        vote : Int32;
+    }) : async { #ok; #err : Text } {
+        return await* devefi_jes1_icpneuron.vote({
+            caller = { owner = caller; subaccount = caller_subaccount };
+            vid = vid;
+            neuronId = neuronId;
+            proposal = proposal;
+            vote = vote;
+        });
+    };
+
+    public shared ({ caller }) func icpneuron_split({
+        caller_subaccount : ?Blob;
+        vid : Nat32;
+        neuronId : Nat64;
+        amount_e8s : Nat64;
+    }) : async { #ok; #err : Text } {
+        return await* devefi_jes1_icpneuron.split({
+            caller = { owner = caller; subaccount = caller_subaccount };
+            vid = vid;
+            neuronId = neuronId;
+            amount_e8s = amount_e8s;
+        });
     };
 
     // ---------- Debug functions -----------

@@ -1,6 +1,6 @@
 [dependencies]
 base = "0.13.3"
-devefi-jes1-icpneuron = "0.3.2"
-devefi-jes1-snsneuron = "0.2.1"
+devefi-jes1-icpneuron = "0.4.0"
+devefi-jes1-snsneuron = "0.2.2"
 devefi-jes1-ntc = "0.1.0"
 devefi = "2.0.5"

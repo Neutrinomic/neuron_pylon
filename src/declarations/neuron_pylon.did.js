@@ -164,13 +164,18 @@ export const idlFactory = ({ IDL }) => {
     'Dissolving' : IDL.Null,
   });
   const Followee = IDL.Variant({
+    'None' : IDL.Null,
     'Default' : IDL.Null,
     'FolloweeId' : IDL.Nat64,
   });
+  const Hotkey = IDL.Variant({ 'None' : IDL.Null, 'HotkeyId' : IDL.Principal });
+  const Visibility = IDL.Variant({ 'Private' : IDL.Null, 'Public' : IDL.Null });
   const ModifyRequest__1 = IDL.Record({
     'dissolve_delay' : IDL.Opt(DissolveDelay),
     'dissolve_status' : IDL.Opt(DissolveStatus),
     'followee' : IDL.Opt(Followee),
+    'hotkey' : IDL.Opt(Hotkey),
+    'visibility' : IDL.Opt(Visibility),
   });
   const ModifyRequest__2 = IDL.Record({});
   const SnsDissolveDelay = IDL.Variant({
@@ -234,6 +239,8 @@ export const idlFactory = ({ IDL }) => {
       'dissolve_delay' : DissolveDelay,
       'dissolve_status' : DissolveStatus,
       'followee' : Followee,
+      'hotkey' : Hotkey,
+      'visibility' : Visibility,
     }),
   });
   const CreateRequest__2 = IDL.Record({});
@@ -323,6 +330,7 @@ export const idlFactory = ({ IDL }) => {
     'created_timestamp_seconds' : IDL.Opt(IDL.Nat64),
     'state' : IDL.Opt(IDL.Int32),
     'nonce' : IDL.Opt(IDL.Nat64),
+    'hot_keys' : IDL.Vec(IDL.Principal),
     'maturity_disbursements_in_progress' : IDL.Opt(
       IDL.Vec(
         IDL.Record({
@@ -347,6 +355,7 @@ export const idlFactory = ({ IDL }) => {
         IDL.Record({ 'followees' : IDL.Vec(IDL.Record({ 'id' : IDL.Nat64 })) }),
       )
     ),
+    'visibility' : IDL.Opt(IDL.Int32),
     'voting_power' : IDL.Opt(IDL.Nat64),
     'neuron_id' : IDL.Opt(IDL.Nat64),
     'age_seconds' : IDL.Opt(IDL.Nat64),
@@ -355,6 +364,7 @@ export const idlFactory = ({ IDL }) => {
     'log' : IDL.Vec(Activity),
     'internals' : IDL.Record({
       'local_idx' : IDL.Nat32,
+      'neuron_claimed' : IDL.Bool,
       'refresh_idx' : IDL.Opt(IDL.Nat64),
       'updating' : UpdatingStatus,
       'spawning_neurons' : IDL.Vec(SharedNeuronCache),
@@ -364,7 +374,10 @@ export const idlFactory = ({ IDL }) => {
       'dissolve_delay' : DissolveDelay,
       'dissolve_status' : DissolveStatus,
       'followee' : Followee,
+      'hotkey' : Hotkey,
+      'visibility' : Visibility,
     }),
+    'neuron_cache' : IDL.Vec(SharedNeuronCache),
   });
   const Shared__2 = IDL.Record({
     'log' : IDL.Vec(Activity),
@@ -701,6 +714,31 @@ export const idlFactory = ({ IDL }) => {
         [],
         [IDL.Vec(PendingTransactions)],
         ['query'],
+      ),
+    'icpneuron_split' : IDL.Func(
+        [
+          IDL.Record({
+            'vid' : IDL.Nat32,
+            'caller_subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+            'amount_e8s' : IDL.Nat64,
+            'neuronId' : IDL.Nat64,
+          }),
+        ],
+        [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+        [],
+      ),
+    'icpneuron_vote' : IDL.Func(
+        [
+          IDL.Record({
+            'vid' : IDL.Nat32,
+            'caller_subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+            'vote' : IDL.Int32,
+            'neuronId' : IDL.Nat64,
+            'proposal' : IDL.Nat64,
+          }),
+        ],
+        [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+        [],
       ),
     'icrc3_get_archives' : IDL.Func(
         [GetArchivesArgs],

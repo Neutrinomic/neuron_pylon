@@ -108,6 +108,8 @@ export interface CreateRequest__1 {
     'dissolve_delay' : DissolveDelay,
     'dissolve_status' : DissolveStatus,
     'followee' : Followee,
+    'hotkey' : Hotkey,
+    'visibility' : Visibility,
   },
 }
 export type CreateRequest__2 = {};
@@ -157,7 +159,8 @@ export interface EndpointOther {
   'account' : Uint8Array | number[],
 }
 export type EndpointsDescription = Array<[LedgerIdx, LedgerLabel]>;
-export type Followee = { 'Default' : null } |
+export type Followee = { 'None' : null } |
+  { 'Default' : null } |
   { 'FolloweeId' : bigint };
 export interface GetArchivesArgs { 'from' : [] | [Principal] }
 export type GetArchivesResult = Array<GetArchivesResultItem>;
@@ -209,6 +212,8 @@ export interface GetTransactionsResult {
   'blocks' : Array<{ 'id' : bigint, 'block' : [] | [Value] }>,
   'archived_blocks' : Array<ArchivedTransactionResponse>,
 }
+export type Hotkey = { 'None' : null } |
+  { 'HotkeyId' : Principal };
 export interface Info {
   'pending' : bigint,
   'last_indexed_tx' : bigint,
@@ -253,6 +258,8 @@ export interface ModifyRequest__1 {
   'dissolve_delay' : [] | [DissolveDelay],
   'dissolve_status' : [] | [DissolveStatus],
   'followee' : [] | [Followee],
+  'hotkey' : [] | [Hotkey],
+  'visibility' : [] | [Visibility],
 }
 export type ModifyRequest__2 = {};
 export interface ModifyRequest__3 {
@@ -338,6 +345,7 @@ export interface SharedNeuronCache {
   'created_timestamp_seconds' : [] | [bigint],
   'state' : [] | [number],
   'nonce' : [] | [bigint],
+  'hot_keys' : Array<Principal>,
   'maturity_disbursements_in_progress' : [] | [
     Array<
       {
@@ -357,6 +365,7 @@ export interface SharedNeuronCache {
     >
   ],
   'followees' : Array<[number, { 'followees' : Array<{ 'id' : bigint }> }]>,
+  'visibility' : [] | [number],
   'voting_power' : [] | [bigint],
   'neuron_id' : [] | [bigint],
   'age_seconds' : [] | [bigint],
@@ -365,6 +374,7 @@ export interface Shared__1 {
   'log' : Array<Activity>,
   'internals' : {
     'local_idx' : number,
+    'neuron_claimed' : boolean,
     'refresh_idx' : [] | [bigint],
     'updating' : UpdatingStatus,
     'spawning_neurons' : Array<SharedNeuronCache>,
@@ -374,7 +384,10 @@ export interface Shared__1 {
     'dissolve_delay' : DissolveDelay,
     'dissolve_status' : DissolveStatus,
     'followee' : Followee,
+    'hotkey' : Hotkey,
+    'visibility' : Visibility,
   },
+  'neuron_cache' : Array<SharedNeuronCache>,
 }
 export interface Shared__2 {
   'log' : Array<Activity>,
@@ -576,6 +589,8 @@ export type ValueMap = [string, Value];
 export type Version = { 'alpha' : Uint16Array | number[] } |
   { 'beta' : Uint16Array | number[] } |
   { 'release' : Uint16Array | number[] };
+export type Visibility = { 'Private' : null } |
+  { 'Public' : null };
 export interface _anon_class_19_1 {
   'add_supported_ledger' : ActorMethod<
     [Principal, { 'icp' : null } | { 'icrc' : null }],
@@ -585,6 +600,31 @@ export interface _anon_class_19_1 {
   'get_ledger_errors' : ActorMethod<[], Array<Array<string>>>,
   'get_ledgers_info' : ActorMethod<[], Array<LedgerInfo__1>>,
   'get_pending_transactions' : ActorMethod<[], Array<PendingTransactions>>,
+  'icpneuron_split' : ActorMethod<
+    [
+      {
+        'vid' : number,
+        'caller_subaccount' : [] | [Uint8Array | number[]],
+        'amount_e8s' : bigint,
+        'neuronId' : bigint,
+      },
+    ],
+    { 'ok' : null } |
+      { 'err' : string }
+  >,
+  'icpneuron_vote' : ActorMethod<
+    [
+      {
+        'vid' : number,
+        'caller_subaccount' : [] | [Uint8Array | number[]],
+        'vote' : number,
+        'neuronId' : bigint,
+        'proposal' : bigint,
+      },
+    ],
+    { 'ok' : null } |
+      { 'err' : string }
+  >,
   'icrc3_get_archives' : ActorMethod<[GetArchivesArgs], GetArchivesResult>,
   'icrc3_get_blocks' : ActorMethod<[GetBlocksArgs], GetBlocksResult>,
   'icrc3_get_tip_certificate' : ActorMethod<[], [] | [DataCertificate]>,
