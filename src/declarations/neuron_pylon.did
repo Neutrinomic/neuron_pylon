@@ -8,6 +8,27 @@ type _anon_class_19_1 =
    get_ledger_errors: () -> (vec vec text) query;
    get_ledgers_info: () -> (vec LedgerInfo__1) query;
    get_pending_transactions: () -> (vec PendingTransactions) query;
+   icpneuron_split:
+    (record {
+       amount_e8s: nat64;
+       caller_subaccount: opt blob;
+       neuronId: nat64;
+       vid: nat32;
+     }) -> (variant {
+              err: text;
+              ok;
+            });
+   icpneuron_vote:
+    (record {
+       caller_subaccount: opt blob;
+       neuronId: nat64;
+       proposal: nat64;
+       vid: nat32;
+       vote: int32;
+     }) -> (variant {
+              err: text;
+              ok;
+            });
    icrc3_get_archives: (args: GetArchivesArgs) -> (GetArchivesResult) query;
    icrc3_get_blocks: (args: GetBlocksArgs) -> (GetBlocksResult) query;
    icrc3_get_tip_certificate: () -> (opt DataCertificate) query;
@@ -22,6 +43,11 @@ type _anon_class_19_1 =
    icrc55_get_defaults: (id: text) -> (CreateRequest) query;
    icrc55_get_nodes: (req: vec GetNode) -> (vec opt NodeShared) query;
    icrc55_get_pylon_meta: () -> (PylonMetaResp) query;
+ };
+type Visibility = 
+ variant {
+   Private;
+   Public;
  };
 type Version = 
  variant {
@@ -303,16 +329,20 @@ type Shared__1 =
    internals:
     record {
       local_idx: nat32;
+      neuron_claimed: bool;
       refresh_idx: opt nat64;
       spawning_neurons: vec SharedNeuronCache;
       updating: UpdatingStatus;
     };
    log: vec Activity;
+   neuron_cache: vec SharedNeuronCache;
    variables:
     record {
       dissolve_delay: DissolveDelay;
       dissolve_status: DissolveStatus;
       followee: Followee;
+      hotkey: Hotkey;
+      visibility: Visibility;
     };
  };
 type SharedNeuronCache = 
@@ -327,6 +357,7 @@ type SharedNeuronCache =
           int32;
           record {followees: vec record {id: nat64;};};
         };
+   hot_keys: vec principal;
    maturity_disbursements_in_progress:
     opt
      vec
@@ -346,6 +377,7 @@ type SharedNeuronCache =
    nonce: opt nat64;
    potential_voting_power: opt nat64;
    state: opt int32;
+   visibility: opt int32;
    voting_power: opt nat64;
    voting_power_refreshed_timestamp_seconds: opt nat64;
  };
@@ -442,6 +474,8 @@ type ModifyRequest__1 =
    dissolve_delay: opt DissolveDelay;
    dissolve_status: opt DissolveStatus;
    followee: opt Followee;
+   hotkey: opt Hotkey;
+   visibility: opt Visibility;
  };
 type ModifyRequest = 
  variant {
@@ -500,6 +534,11 @@ type Info =
    pending: nat;
    reader_instructions_cost: nat64;
    sender_instructions_cost: nat64;
+ };
+type Hotkey = 
+ variant {
+   HotkeyId: principal;
+   None;
  };
 type GetTransactionsResult = 
  record {
@@ -568,6 +607,7 @@ type Followee =
  variant {
    Default;
    FolloweeId: nat64;
+   None;
  };
 type EndpointsDescription = 
  vec record {
@@ -652,6 +692,8 @@ type CreateRequest__1 = record {
                              dissolve_delay: DissolveDelay;
                              dissolve_status: DissolveStatus;
                              followee: Followee;
+                             hotkey: Hotkey;
+                             visibility: Visibility;
                            };};
 type CreateRequest = 
  variant {
